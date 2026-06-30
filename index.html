@@ -94,7 +94,7 @@
         }
 
         const LOADING_STEPS = [
-            "تجاوز جدار الحظر الجغرافي وتأمين الاتصال بالخادم...",
+            "تجاوز جدار الحظر وتأمين ممر اتصالات بديل...",
             "تحليل المسافات البينية ونسب التناظر المتقدمة...",
             "قراءة هندسة العينين وعمق النظرة السلوكية...",
             "تحليل الانطباع الفراسي والحركي للملامح...",
@@ -136,7 +136,7 @@
             const [usersList, setUsersList] = React.useState(() => {
                 const localData = localStorage.getItem('sima_masked_users');
                 return localData ? JSON.parse(localData) : [
-                    { name: "تجربة عمار", password: "123", status: "active" }
+                    { name: "نجربة عمار", password: "123", status: "active" }
                 ];
             });
 
@@ -271,17 +271,16 @@
                 localStorage.setItem('sima_key_type', keyType);
             };
 
-            // دالة ضغط الصور القصوى لمنع انهيار متصفح الجوال نهائياً وتبسيط البيانات المرفوعة للبروكسي
+            // ضغط فائق إضافي لمنع أخطاء المهلة والـ 408 الناتجة عن بطء تمرير الخوادم المجانية للبيانات
             const compressAndSetImage = (file) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        // أبعاد مثالية وخفيفة جداً (450 بكسل) كافية تماماً للذكاء الاصطناعي وبدون أي ثقل
                         let width = img.width;
                         let height = img.height;
-                        const max_size = 450;
+                        const max_size = 400; // حجم رشيق وسريع المرور عبر أي ممر جمركي أو جدار حماية
 
                         if (width > height) {
                             if (width > max_size) {
@@ -300,7 +299,7 @@
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
 
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.60);
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.50); // جودة خفيفة مثالية للنقل السريع
                         setImage(compressedDataUrl);
                         setCompressedBase64(compressedDataUrl.split(',')[1]);
                         setResult(null);
@@ -326,68 +325,75 @@
                 }
 
                 setLoading(true);
-                try {
-                    const prompt = `
-                        قم بتحليل ملامح الوجه في هذه الصورة تحليلاً تفصيلياً وموسعاً جداً باللغة العربية.
-                        أعد الناتج بصيغة JSON خالية تماماً من علامات الكود، فقط الكائن مباشرة:
-                        {
-                          "score": 85,
-                          "summary": "ملخص غني ومفصل وشامل جداً.",
-                          "eyes": "تحليل دقيق وموسع لشكل العينين والنظرة.",
-                          "nose": "تحليل كامل لهندسة الأنف وحجمه وتناسقه.",
-                          "lips": "تحليل موسع للشفاه والابتسامة ونمط التعبير.",
-                          "jaw": "وصف دقيق للجبهة، خط الفك، الذقن، وزوايا الوجه.",
-                          "energy": "تقييم كامل لمستوى الحضور والطاقة الحيوية.",
-                          "tips": "مجموعة من التوصيات والنصائح العميقة والمخصصة لدعم الحضور والجمال والملامح البنيوية."
-                        }
-                    `;
-
-                    let targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
-                    
-                    // استخدام ممر بروكسي مباشر بدون هيدرز معقدة لتفادي حظر الشبكات المحلية والانهيار
-                    let bypassEndpoint = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
-
-                    const response = await fetch(bypassEndpoint, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }]
-                        })
-                    });
-
-                    if (!response.ok) {
-                        throw new Error("لم يتمكن المعبر من نقل البيانات، يرجى التثبت من صلاحية المفتاح.");
+                
+                const prompt = `
+                    قم بتحليل ملامح الوجه في هذه الصورة تحليلاً تفصيلياً وموسعاً جداً باللغة العربية.
+                    أعد الناتج بصيغة JSON خالية تماماً من علامات الكود، فقط الكائن مباشرة:
+                    {
+                      "score": 85,
+                      "summary": "ملخص غني ومفصل وشامل جداً.",
+                      "eyes": "تحليل دقيق وموسع لشكل العينين والنظرة.",
+                      "nose": "تحليل كامل لهندسة الأنف وحجمه وتناسقه.",
+                      "lips": "تحليل موسع للشفاه والابتسامة ونمط التعبير.",
+                      "jaw": "وصف دقيق للجبهة، خط الفك، الذقن، وزوايا الوجه.",
+                      "energy": "تقييم كامل لمستوى الحضور والطاقة الحيوية.",
+                      "tips": "مجموعة من التوصيات والنصائح العميقة والمخصصة لدعم الحضور والجمال والملامح البنيوية."
                     }
+                `;
 
-                    const data = await response.json();
-                    
-                    // جدار حماية تام ومحمي بـ Optional Chaining ضد الانهيار أو استلام بيانات فارغة
-                    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-                    if (!rawText) {
-                        throw new Error("استجابة الخادم غير مقروءة أو أن المفتاح تجاوز حد الاستهلاك.");
-                    }
-                    
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
+                
+                // قائمة البروكسيات التبادلية لحماية الاتصال وتفادي أخطاء المهلة 408
+                const proxyEndpoints = [
+                    `https://corsproxy.io/?` + encodeURIComponent(targetUrl),
+                    `https://api.allorigins.win/raw?url=` + encodeURIComponent(targetUrl)
+                ];
+
+                let success = false;
+                let lastError = "";
+
+                // محاولة الاتصال عبر البروكسيات المتوفرة بالتناوب تلقائياً
+                for (let i = 0; i < proxyEndpoints.length; i++) {
                     try {
-                        const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-                        setResult(JSON.parse(cleanJsonStr));
-                    } catch (jsonErr) {
-                        // كسر حالة التوقف وحقن النص مباشرة كملخص حتى لا تظهر واجهة بيضاء
-                        setResult({
-                            score: 80,
-                            summary: rawText,
-                            eyes: "موضح في الملخص العام أعلاه.",
-                            nose: "موضح في الملخص العام أعلاه.",
-                            lips: "موضح في الملخص العام أعلاه.",
-                            jaw: "موضح في الملخص العام أعلاه.",
-                            energy: "موضح في الملخص العام أعلاه.",
-                            tips: "تأمل النصائح المدمجة بالتقرير."
+                        const response = await fetch(proxyEndpoints[i], {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }]
+                            }),
+                            // وضع مهلة للبروكسي الحالي للتحويل للبديل فوراً إذا تباطأ
+                            signal: AbortSignal.timeout(15000) 
                         });
-                    }
 
-                } catch (error) {
-                    alert(`خطأ في الاتصال الآمن: ${error.message || 'يرجى مراجعة إعدادات الشبكة ومفتاح الـ API.'}`);
-                } finally {
-                    setLoading(false);
+                        if (!response.ok) throw new Error(`استجابة البروكسي رقم ${i+1} غير مستقرة.`);
+
+                        const data = await response.json();
+                        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                        if (!rawText) throw new Error("بيانات مستلمة فارغة.");
+
+                        try {
+                            const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                            setResult(JSON.parse(cleanJsonStr));
+                        } catch (jsonErr) {
+                            setResult({
+                                score: 82,
+                                summary: rawText,
+                                eyes: "تفاصيل مدمجة بالتقرير العام.", nose: "تفاصيل مدمجة بالتقرير العام.",
+                                lips: "تفاصيل مدمجة بالتقرير العام.", jaw: "تفاصيل مدمجة بالتقرير العام.",
+                                energy: "تفاصيل مدمجة بالتقرير العام.", tips: "راجع النصائح بالملخص."
+                            });
+                        }
+                        success = true;
+                        break; 
+                    } catch (err) {
+                        lastError = err.message || "انتهت مهلة الاتصال بالخادم";
+                        // الانتقال التلقائي للممر البديل التالي دون مقاطعة المستخدم
+                    }
                 }
+
+                if (!success) {
+                    alert(`فشل التوصيل عبر المسارات المحمية: ${lastError}. يرجى التحقق من صلاحية المفتاح أو المحاولة مجدداً عبر شبكة أخرى.`);
+                }
+                setLoading(false);
             };
 
             return (
@@ -470,7 +476,7 @@
                                     type="password" placeholder="أدخل كلمة مرور المدير..." value={adminPasswordInput}
                                     onChange={(e) => setAdminPasswordInput(e.target.value)}
                                     className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none"
-                                />
+                                animate-none/>
                                 <div className="flex gap-2">
                                     <button onClick={handleAdminLogin} className="w-full py-3 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm">تأكيد الدخول</button>
                                     <button onClick={() => setCurrentView('landing')} className="w-full py-3 bg-slate-100 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-black rounded-xl text-sm">إلغاء</button>
@@ -527,7 +533,7 @@
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
                                     <h3 className="font-black text-base text-amber-600 flex items-center gap-2"><Settings className="w-5 h-5" /> غرف التحكم والتشفير التام</h3>
-                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> نظام الفك الجغرافي نشط</span>
+                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> نظام الفك الجغرافي المزدوج نشط</span>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
@@ -583,7 +589,7 @@
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار حماية الواجهات مفعل.
+                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار حماية المسارات والممرات مفعل تلقائياً.
                                     </p>
                                 </section>
 
@@ -592,8 +598,8 @@
                                         <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <div className="w-14 h-14 mx-auto mb-4 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Upload className="w-6 h-6" /></div>
-                                            <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه مباشرة لبدء فك الشفرات</h3>
-                                            <p className="text-xs text-slate-400 font-bold">يتم معالجة وضغط الصورة تلقائياً لتناسب اتصال الجوال والشبكة المحمية</p>
+                                            <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه لبدء الفحص</h3>
+                                            <p className="text-xs text-slate-400 font-bold">يتم تطبيق هندسة ضغط مزدوجة وفائقة تلقائياً لسرعة العبور الآمن عبر الشبكة المحمية</p>
                                         </div>
                                     ) : (
                                         <div className="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800">
@@ -609,7 +615,7 @@
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
-                                        <h3 className="text-base font-black mb-1">معالجة وهندسة المؤشرات الحيوية جارية الآن</h3>
+                                        <h3 className="text-base font-black mb-1">معالجة وهندسة المؤشرات جارية الآن عبر الممرات البديلة</h3>
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}

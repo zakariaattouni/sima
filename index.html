@@ -90,7 +90,7 @@
         }
 
         const LOADING_STEPS = [
-            "جاري كسر القيد الجغرافي وتأمين المعبر الآمن...",
+            "جاري تهيئة المعبر الآمن وتجاوز التقييد الجغرافي...",
             "تحليل المسافات البينية ونسب التناظر المتقدمة...",
             "قراءة هندسة العينين وعمق النظرة السلوكية...",
             "تحليل الانطباع الفراسي والحركي للملامح...",
@@ -303,13 +303,13 @@
                         }
                     `;
 
-                    // تحديد الرابط المباشر الأصلي لجوجل
+                    // بناء الرابط المباشر
                     let targetUrl = keyType === 'google-ai' 
                         ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`
                         : `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${realKey}`;
                     
-                    // دمج البروكسي العكسي العالمي لكسر قيد المنطقة الحظر الجغرافي دون أي تطبيق خارجي
-                    let bypassEndpoint = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
+                    // معالج البروكسي العكسي المحدث لتفادي الـ Double Encoding ورفض الهيدرز
+                    let bypassEndpoint = `https://corsproxy.io/?` + targetUrl;
 
                     const response = await fetch(bypassEndpoint, {
                         method: 'POST',
@@ -319,14 +319,26 @@
                         })
                     });
 
+                    // التأكد من استجابة الخادم بنجاح قبل القراءة لتفادي الشاشة البيضاء
+                    if (!response.ok) {
+                        throw new Error(`استجابة الخادم الخارجي غير مستقرة (رمز الخطأ: ${response.status})`);
+                    }
+
                     const data = await response.json();
                     if (data.error) throw new Error(data.error.message);
 
                     const rawText = data.candidates[0].content.parts[0].text.trim();
-                    const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-                    setResult(JSON.parse(cleanJsonStr));
+                    
+                    // جدار حماية آمن لاستخراج وتحليل الـ JSON لمنع انهيار الـ React تماماً
+                    try {
+                        const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                        setResult(JSON.parse(cleanJsonStr));
+                    } catch (jsonErr) {
+                        throw new Error("استجاب الخادم بنص غير متوافق مع نظام الفهرسة الجمالية.");
+                    }
+
                 } catch (error) {
-                    alert(`فشل التحليل الآمن: ${error.message || 'يرجى مراجعة تشفير المفتاح وصلاحية البروكسي العكسي.'}`);
+                    alert(`فشل التحليل الآمن: ${error.message || 'يرجى التحقق من صلاحية مفتاح الـ API.'}`);
                 } finally {
                     setLoading(false);
                 }
@@ -346,7 +358,7 @@
                                 <div className="flex flex-col">
                                     <h1 className="font-kufi font-black text-4xl tracking-wide gold-gradient-text leading-none py-1">سِيما</h1>
                                     <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-extrabold mt-1">
-                                        المنصة الرقمية الآمنة لفك شفرات ملامح الوجه والتحليل البنيوي والسلوكي الموسع (تجاوز جغرافي نشط للشرق الأوسط)
+                                        المنصة الرقمية الآمنة لفك شفرات ملامح الوجه والتحليل البنيوي والسلوكي الموسع
                                     </p>
                                 </div>
                             </div>
@@ -469,7 +481,7 @@
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
                                     <h3 className="font-black text-base text-amber-600 flex items-center gap-2"><Settings className="w-5 h-5" /> غرف التحكم والتشفير التام</h3>
-                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> تخطي جيو ريفي كسر نشط</span>
+                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> نظام الفك الجغرافي نشط</span>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
@@ -532,7 +544,7 @@
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. نظام فك التقييد التلقائي نشط.
+                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار الحماية ضد الانهيار مفعّل.
                                     </p>
                                 </section>
 

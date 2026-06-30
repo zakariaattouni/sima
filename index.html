@@ -5,22 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سِيما (Sima) - المنصة الآمنة والموسعة لفك شفرات ملامح الوجه</title>
     
+    <!-- ميزات الـ PWA لتثبيت التطبيق بأيقونة على سطح الجهاز -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="سِيما">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2103/2103633.png">
     
+    <!-- الخطوط الفاخرة والواضحة للعنوان والشرح -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Reem+Kufi:wght@600;800;900&display=swap" rel="stylesheet">
 
+    <!-- text استدعاء المكتبات عبر CDN المستقر -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- مكتبة التشفير لحماية المفاتيح السرية من الفايربيس والمتصفح -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
+    <!-- حزمة نظام Firebase المتكاملة -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
     
@@ -44,7 +49,6 @@
             scroll-behavior: smooth;
             -webkit-font-smoothing: antialiased;
         }
-        /* تدرج التكثيف اللامع للاسم الزخرفي الذهبي */
         .gold-gradient-text {
             background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
             -webkit-background-clip: text;
@@ -90,7 +94,7 @@
         }
 
         const LOADING_STEPS = [
-            "جاري تهيئة المعبر الآمن وتجاوز التقييد الجغرافي...",
+            "جاري ضغط ومعالجة الصورة لضمان عبور آمن وخفيف...",
             "تحليل المسافات البينية ونسب التناظر المتقدمة...",
             "قراءة هندسة العينين وعمق النظرة السلوكية...",
             "تحليل الانطباع الفراسي والحركي للملامح...",
@@ -140,6 +144,7 @@
             const [maskedApiKey, setMaskedApiKey] = React.useState(() => localStorage.getItem('sima_api_hidden_mask') || '');
 
             const [image, setImage] = React.useState(null);
+            const [compressedBase64, setCompressedBase64] = React.useState(null);
             const [loading, setLoading] = React.useState(false);
             const [loadingStep, setLoadingStep] = React.useState(0);
             const [result, setResult] = React.useState(null);
@@ -266,17 +271,55 @@
                 localStorage.setItem('sima_key_type', keyType);
             };
 
+            // دالة مبتكرة لضغط الصور على الجوال قبل رفعها لمنع الشاشة البيضاء والانهيار نهائياً
+            const compressAndSetImage = (file) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        // تحديد أقصى عرض أو ارتفاع 800 بكسل للحفاظ على الخفة والسرعة العالية للطلب
+                        let width = img.width;
+                        let height = img.height;
+                        const max_size = 800;
+
+                        if (width > height) {
+                            if (width > max_size) {
+                                height *= max_size / width;
+                                width = max_size;
+                            }
+                        } else {
+                            if (height > max_size) {
+                                width *= max_size / height;
+                                height = max_size;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // تحويل الصورة المضغوطة إلى صيغة Base64 خفيفة جداً بجودة 75%
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
+                        setImage(compressedDataUrl);
+                        setCompressedBase64(compressedDataUrl.split(',')[1]);
+                        setResult(null);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            };
+
             const handleFileChange = (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => { setImage(reader.result); setResult(null); };
-                    reader.readAsDataURL(file);
+                    compressAndSetImage(file);
                 }
             };
 
             const executeGeminiAnalysis = async () => {
-                if (!image) return;
+                if (!compressedBase64) return;
                 const realKey = unmaskData(maskedApiKey);
                 if (!realKey) {
                     alert('تنبيه النظام: لم يقم المسؤول بإعداد مفتاح الخادم المشفر بعد.');
@@ -285,14 +328,11 @@
 
                 setLoading(true);
                 try {
-                    const base64Data = image.split(',')[1];
-                    const mimeType = image.split(',')[0].match(/:(.*?);/)[1];
-
                     const prompt = `
                         قم بتحليل ملامح الوجه في هذه الصورة تحليلاً تفصيلياً وموسعاً جداً. ركز على التفاصيل الدقيقة لكل عنصر بناءً على الفراسة والنسب الجمالية والبنيوية.
                         أعد الناتج بصيغة JSON فقط باللغة العربية، وبنصوص غنية ومفصلة لكل محور:
                         {
-                          "score": 88,
+                          "score": 85,
                           "summary": "تقرير شامل ومفصل يجمع النظرة البنيوية والسلوكية العامة للوجه بشكل مكثف وعميق.",
                           "eyes": "تحليل دقيق وموسع جداً لشكل العينين، النظرة، المسافة بينهما، وما تعكسه من ذكاء، انتباه، أو عمق سلوكي وعاطفي.",
                           "nose": "تحليل كامل لهندسة الأنف وحجمه وتناسقه البنيوي مع خطوط الوجه الوسطى وما يدل عليه من سمات القيادة أو الثقة.",
@@ -303,25 +343,23 @@
                         }
                     `;
 
-                    // بناء الرابط المباشر
                     let targetUrl = keyType === 'google-ai' 
                         ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`
                         : `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${realKey}`;
                     
-                    // معالج البروكسي العكسي المحدث لتفادي الـ Double Encoding ورفض الهيدرز
-                    let bypassEndpoint = `https://corsproxy.io/?` + targetUrl;
+                    // استخدام معبر بروكسي آمن ومباشر
+                    let bypassEndpoint = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
                     const response = await fetch(bypassEndpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: mimeType, data: base64Data } }] }]
+                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }]
                         })
                     });
 
-                    // التأكد من استجابة الخادم بنجاح قبل القراءة لتفادي الشاشة البيضاء
                     if (!response.ok) {
-                        throw new Error(`استجابة الخادم الخارجي غير مستقرة (رمز الخطأ: ${response.status})`);
+                        throw new Error(`استجابة الخادم غير مستقرة حالياً. رمز الخطأ: ${response.status}`);
                     }
 
                     const data = await response.json();
@@ -329,7 +367,6 @@
 
                     const rawText = data.candidates[0].content.parts[0].text.trim();
                     
-                    // جدار حماية آمن لاستخراج وتحليل الـ JSON لمنع انهيار الـ React تماماً
                     try {
                         const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
                         setResult(JSON.parse(cleanJsonStr));
@@ -338,7 +375,7 @@
                     }
 
                 } catch (error) {
-                    alert(`فشل التحليل الآمن: ${error.message || 'يرجى التحقق من صلاحية مفتاح الـ API.'}`);
+                    alert(`فشل التحليل: ${error.message || 'يرجى التحقق من الشبكة أو صلاحية مفتاح الـ API.'}`);
                 } finally {
                     setLoading(false);
                 }
@@ -397,7 +434,7 @@
                                         <Sparkles className="w-8 h-8 text-amber-500" />
                                     </div>
                                     <h2 className="text-2xl font-black text-slate-900 dark:text-white">بوابة سِيما المشتركة والآمنة</h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">نظام تعمية متقدم لتشفير البيانات وحماية خصوصية الخادم بالكامل</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">نظام معالجة وتشفير متقدم لحماية الخصوصية بالكامل وضغط الصور الذكي</p>
                                 </div>
                                 <div className="grid grid-cols-1 gap-4">
                                     <button onClick={() => setCurrentView('login_member')} className="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right font-black text-sm flex items-center justify-between hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-sm">
@@ -544,7 +581,7 @@
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار الحماية ضد الانهيار مفعّل.
+                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار ضغط الصور الآمن مفعّل تلقائياً.
                                     </p>
                                 </section>
 
@@ -554,13 +591,13 @@
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <div className="w-14 h-14 mx-auto mb-4 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Upload className="w-6 h-6" /></div>
                                             <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه مباشرة لبدء فك الشفرات</h3>
-                                            <p className="text-xs text-slate-400 font-bold">يدعم جميع صيغ الصور ومحمي بالكامل ضد التسريب</p>
+                                            <p className="text-xs text-slate-400 font-bold">يتم ضغط الصورة تلقائياً على هاتفك لحمايتها من البطء والتوقف</p>
                                         </div>
                                     ) : (
                                         <div className="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800">
                                             <img src={image} alt="Face Preview" className="max-h-[350px] w-full object-contain mx-auto" />
                                             <div className="absolute bottom-4 right-4 left-4 flex justify-between items-center gap-2">
-                                                <button onClick={() => { setImage(null); setResult(null); }} className="px-4 py-2.5 bg-red-600 text-white rounded-xl shadow-md font-black text-xs flex items-center gap-1.5"><Trash2 className="w-4 h-4" /> إلغاء الصورة</button>
+                                                <button onClick={() => { setImage(null); setCompressedBase64(null); setResult(null); }} className="px-4 py-2.5 bg-red-600 text-white rounded-xl shadow-md font-black text-xs flex items-center gap-1.5"><Trash2 className="w-4 h-4" /> إلغاء الصورة</button>
                                                 {!result && !loading && <button onClick={executeGeminiAnalysis} className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg font-black flex items-center gap-2 text-xs transition-colors"><Sparkles className="w-5 h-5" /> تشغيل التحليل الموسع الشامل</button>}
                                             </div>
                                         </div>

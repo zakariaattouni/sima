@@ -5,26 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سِيما (Sima) - منصة فك شفرات ملامح الوجه</title>
     
-    <!-- ميزات الـ PWA لتثبيت التطبيق كأيقونة على الهاتف -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="سِيما">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2103/2103633.png">
     
-    <!-- خطوط غوغل المستقرة -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Reem+Kufi:wght@600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700;800;900&family=Reem+Kufi:wght=600;800;900&display=swap" rel="stylesheet">
     
-    <!-- استدعاء ملفات الـ CDN الأساسية فقط والمستقرة جداً -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- مكتبة التشفير المحمية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <!-- حزمة نظام Firebase المتكاملة -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
     
@@ -96,10 +91,20 @@
             measurementId: "G-BVXK2MD439"
         };
 
+        // مضاد التجميد: حقن الفايربيس داخل كتل معزولة جغرافياً لضمان عدم تعليق الكود
         if (firebase.apps.length === 0) {
-            firebase.initializeApp(firebaseConfig);
-            if ("measurementId" in firebaseConfig) {
-                firebase.analytics();
+            try {
+                firebase.initializeApp(firebaseConfig);
+                if ("measurementId" in firebaseConfig) {
+                    // تشغيل التحليلات بشكل آمن؛ إن تم حظرها شبكياً لا تؤثر على عمل المتصفح والواجهة
+                    try {
+                        firebase.analytics();
+                    } catch (e) {
+                        console.warn("Analytics blocked by local network filters.");
+                    }
+                }
+            } catch (fbErr) {
+                console.error("Firebase Initialization bypassed safely due to network restrictions.");
             }
         }
 
@@ -342,10 +347,16 @@
                     }
                 `;
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
+                
+                // مصفوفة موسعة بخمس ممرات جغرافية ذكية لكسر القيود المحلية
                 const proxyEndpoints = [
                     `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+                    `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(targetUrl)}`,
+                    `https://thingproxy.freeboard.io/fetch/${targetUrl}`,
+                    `https://cors-ncov.onrender.com/${targetUrl}`
                 ];
+
                 let success = false;
                 for (let i = 0; i < proxyEndpoints.length; i++) {
                     try {
@@ -361,7 +372,7 @@
                                 }
                             })
                         });
-                        if (!response.ok) throw new Error("تم حظر المسار");
+                        if (!response.ok) throw new Error("الممر محظور جغرافياً");
                         const data = await response.json();
                         const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
                         if (!rawText) throw new Error("استجابة غير مقروءة.");
@@ -381,11 +392,11 @@
                         success = true;
                         break; 
                     } catch (err) {
-                        // الانتقال للممر الآخر تلقائياً
+                        console.warn(`المسار رقم ${i+1} مغلق، جاري العبور تلقائياً للمسار الموالي...`);
                     }
                 }
                 if (!success) {
-                    alert(`تنبيه من جدار الحماية: تم حجب الاتصال مؤقتاً بسبب قيود الشبكة المحلية. يرجى تفعيل الـ VPN أو تبديل الاتصال من البيانات (Data) إلى الـ Wi-Fi لإعادة فتح المسار.`);
+                    alert(`تنبيه من جدار الحماية: تم حجب الاتصال مؤقتاً بسبب قيود الشبكة المحلية. يرجى تفعيل الـ VPN أو تبديل الاتصال من البيانات (Data) إلى الـ Wi-Fi لإعادة فتح المسار الإقليمي.`);
                 }
                 setLoading(false);
             };
@@ -441,7 +452,7 @@
                                         <Icons.Sparkles className="w-8 h-8 text-amber-500" />
                                     </div>
                                     <h2 className="text-2xl font-black text-slate-900 dark:text-white">بوابة سِيما المشتركة والآمنة</h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">نظام تعمية متقدم لتشفير البيانات وضغط الصور الذكي المقاوم للتوقف</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">نظام تعمية متقدم لتشفير البيانات وضغط الصور الذكي المقاوم للتوقف الجغرافي</p>
                                 </div>
                                 <div className="grid grid-cols-1 gap-4">
                                     <button onClick={() => setCurrentView('login_member')} className="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right font-black text-sm flex items-center justify-between hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-sm">
@@ -520,10 +531,10 @@
                         )}
 
                         {userRole === 'admin' && showAdminPanel && (
-                            <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
+                            <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 tropics-secure rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
                                     <h3 className="font-black text-base text-amber-600 flex items-center gap-2"><Icons.Settings className="w-5 h-5" /> غرف التحكم والتشفير التام</h3>
-                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><Icons.ShieldAlert className="w-4 h-4" /> نظام الفك الجغرافي المزدوج نشط</span>
+                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><Icons.ShieldAlert className="w-4 h-4" /> نظام المزامنة والتحصين السحابي نشط</span>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
@@ -537,7 +548,7 @@
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين المشتركين:</span>
+                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين المشتركين سحابياً:</span>
                                     <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
                                         <table className="w-full text-right border-collapse text-xs font-bold">
                                             <thead>
@@ -577,7 +588,7 @@
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار حماية المسارات مفعل تلقائياً.
+                                        الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار حماية النطاقات مفعل سحابياً.
                                     </p>
                                 </section>
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
@@ -586,7 +597,7 @@
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <div className="w-14 h-14 mx-auto mb-4 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Icons.Upload className="w-6 h-6" /></div>
                                             <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه لبدء الفحص</h3>
-                                            <p className="text-xs text-slate-400 font-bold">يتم تطبيق هندسة ضغط مزدوجة وفائقة تلقائياً لسرعة العبور الآمن عبر الشبكة المحمية</p>
+                                            <p className="text-xs text-slate-400 font-bold">يتم تطبيق هندسة ضغط مزدوجة وفائقة تلقائياً لسرعة العبور الآمن عبر الممرات الإقليمية البديلة</p>
                                         </div>
                                     ) : (
                                         <div className="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800">
@@ -602,7 +613,7 @@
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
-                                        <h3 className="text-base font-black mb-1">جاري تحليل الصورة ومعالجة البيانات...</h3>
+                                        <h3 className="text-base font-black mb-1">جاري معالجة البيانات وتفتيت جدران الحظر الجغرافي...</h3>
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}

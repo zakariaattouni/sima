@@ -5,27 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سِيما (Sima) - المنصة الآمنة والموسعة لفك شفرات ملامح الوجه</title>
     
-    <!-- ميزات الـ PWA لتثبيت التطبيق بأيقونة على سطح الجهاز -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="سِيما">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2103/2103633.png">
     
-    <!-- الخطوط الفاخرة والواضحة للعنوان والشرح (تم تصحيح الرابط) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Reem+Kufi:wght@600;800;900&display=swap" rel="stylesheet">
 
-    <!-- :استدعاء المكتبات عبر CDN المستقر -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- مكتبة التشفير لحماية المفاتيح السرية من الفايربيس والمتصفح -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 
-    <!-- حزمة نظام Firebase المتكاملة -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
     
@@ -95,12 +90,12 @@
         }
 
         const LOADING_STEPS = [
-            "جاري تأمين الاتصال البيومتري المشفر...",
-            "تحليل المسافات البينية ونسب التناظر...",
-            "قراءة هندسة العينين وعمق النظرة...",
-            "تحليل الانطباع السلوكي والفراسة الحركية...",
-            "قياس زوايا خط الفك والنسبة الذهبية...",
-            "صياغة التقرير الموسع والمفصل..."
+            "جاري كسر القيد الجغرافي وتأمين المعبر الآمن...",
+            "تحليل المسافات البينية ونسب التناظر المتقدمة...",
+            "قراءة هندسة العينين وعمق النظرة السلوكية...",
+            "تحليل الانطباع الفراسي والحركي للملامح...",
+            "قياس زوايا خط الفك والنسبة الذهبية للوجه...",
+            "صياغة التقرير الموسع والمفصل بوضوح عالي..."
         ];
 
         const maskData = (plainText) => {
@@ -308,11 +303,15 @@
                         }
                     `;
 
-                    let endpoint = keyType === 'google-ai' 
+                    // تحديد الرابط المباشر الأصلي لجوجل
+                    let targetUrl = keyType === 'google-ai' 
                         ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`
                         : `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${realKey}`;
                     
-                    const response = await fetch(endpoint, {
+                    // دمج البروكسي العكسي العالمي لكسر قيد المنطقة الحظر الجغرافي دون أي تطبيق خارجي
+                    let bypassEndpoint = `https://corsproxy.io/?` + encodeURIComponent(targetUrl);
+
+                    const response = await fetch(bypassEndpoint, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -327,7 +326,7 @@
                     const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
                     setResult(JSON.parse(cleanJsonStr));
                 } catch (error) {
-                    alert(`فشل التحليل الآمن: ${error.message || 'يرجى مراجعة تشفير المفتاح.'}`);
+                    alert(`فشل التحليل الآمن: ${error.message || 'يرجى مراجعة تشفير المفتاح وصلاحية البروكسي العكسي.'}`);
                 } finally {
                     setLoading(false);
                 }
@@ -347,7 +346,7 @@
                                 <div className="flex flex-col">
                                     <h1 className="font-kufi font-black text-4xl tracking-wide gold-gradient-text leading-none py-1">سِيما</h1>
                                     <p className="text-xs md:text-sm text-slate-500 dark:text-slate-400 font-extrabold mt-1">
-                                        المنصة الرقمية الآمنة لفك شفرات ملامح الوجه والتحليل البنيوي والسلوكي الموسع
+                                        المنصة الرقمية الآمنة لفك شفرات ملامح الوجه والتحليل البنيوي والسلوكي الموسع (تجاوز جغرافي نشط للشرق الأوسط)
                                     </p>
                                 </div>
                             </div>
@@ -470,7 +469,7 @@
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
                                     <h3 className="font-black text-base text-amber-600 flex items-center gap-2"><Settings className="w-5 h-5" /> غرف التحكم والتشفير التام</h3>
-                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> تشفير محلي نشط</span>
+                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><ShieldAlert className="w-4 h-4" /> تخطي جيو ريفي كسر نشط</span>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
@@ -533,7 +532,7 @@
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. حماية الاتصال الحيوية نشطة بنجاح.
+                                        الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. نظام فك التقييد التلقائي نشط.
                                     </p>
                                 </section>
 

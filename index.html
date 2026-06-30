@@ -15,7 +15,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Reem+Kufi:wght@600;800;900&display=swap" rel="stylesheet">
-
     <!-- استدعاء ملفات الـ CDN الأساسية فقط والمستقرة جداً -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -24,7 +23,6 @@
     
     <!-- مكتبة التشفير المحمية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-
     <!-- حزمة نظام Firebase المتكاملة -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
@@ -55,19 +53,10 @@
             -webkit-text-fill-color: transparent;
             filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
         }
-        .connection-dot {
-            animation: pulse-dot 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(0.8); }
-        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300 min-h-screen font-bold">
-
     <div id="sima-app-root"></div>
-
     <script type="text/babel">
         // بناء الأيقونات برمجياً بصيغة SVG مدمجة لمنع اعتماد التطبيق على أي سيرفر خارجي للأيقونات ومنع الشاشة البيضاء نهائياً
         const Icons = {
@@ -90,13 +79,9 @@
             Heart: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
             Star: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>,
             Compass: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 7l1 4l4 1l-4 1l-1 4l-1 -4l-4 -1l4 -1z" /></svg>,
-            Award: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v5m-3-3h6m-3-10a3 3 0 110-6 3 3 0 010 6zm0 0a7 7 0 100 14 7 7 0 000-14z" /></svg>,
-            Wifi: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071a10 10 0 0114.14 0M4.929 9.929a14 14 0 0119.142 0" /></svg>,
-            WifiOff: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636a9 9 0 011.617 1.622M15.314 8.686a5 5 0 011.414 1.414M12 12l-4 4m4-4l4 4m-4-4l-4-4m4 4l4-4" /></svg>
+            Award: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v5m-3-3h6m-3-10a3 3 0 110-6 3 3 0 010 6zm0 0a7 7 0 100 14 7 7 0 000-14z" /></svg>
         };
-
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
-
         const firebaseConfig = {
             apiKey: "AIzaSyD08ozxrWCBrbCsx3ayz8Gykyy4Z7v7UEU",
             authDomain: "sima-4378c.firebaseapp.com",
@@ -106,14 +91,12 @@
             appId: "1:978988425410:web:ec6ab58c99fce16cec9b5b",
             measurementId: "G-BVXK2MD439"
         };
-
         if (firebase.apps.length === 0) {
             firebase.initializeApp(firebaseConfig);
             if ("measurementId" in firebaseConfig) {
                 firebase.analytics();
             }
         }
-
         const LOADING_STEPS = [
             "تجاوز جدار الحظر وتأمين ممر اتصالات بديل...",
             "تحليل المسافات البينية ونسب التناظر المتقدمة...",
@@ -122,12 +105,10 @@
             "قياس زوايا خط الفك والنسبة الذهبية للوجه...",
             "صياغة التقرير الموسع والمفصل بوضوح عالي..."
         ];
-
         const maskData = (plainText) => {
             if (!plainText) return '';
             return CryptoJS.AES.encrypt(plainText, SECRET_SYSTEM_SALT).toString();
         };
-
         const unmaskData = (cipherText) => {
             if (!cipherText) return '';
             try {
@@ -137,7 +118,6 @@
                 return '';
             }
         };
-
         function SimaApplication() {
             const [darkMode, setDarkMode] = React.useState(false);
             const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_pwa_role') || null);
@@ -146,48 +126,26 @@
             
             const [deferredPrompt, setDeferredPrompt] = React.useState(null);
             const [showInstallBtn, setShowInstallBtn] = React.useState(false);
-
             const [adminPasswordInput, setAdminPasswordInput] = React.useState('');
             const [memberNameInput, setMemberNameInput] = React.useState('');
             const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
             
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
-
             const [usersList, setUsersList] = React.useState(() => {
                 const localData = localStorage.getItem('sima_masked_users');
                 return localData ? JSON.parse(localData) : [
                     { name: "تجربة عمار", password: "123", status: "active" }
                 ];
             });
-
             const [keyType, setKeyType] = React.useState(() => localStorage.getItem('sima_key_type') || 'google-ai');
             const [maskedApiKey, setMaskedApiKey] = React.useState(() => localStorage.getItem('sima_api_hidden_mask') || '');
-
             const [image, setImage] = React.useState(null);
             const [compressedBase64, setCompressedBase64] = React.useState(null);
             const [loading, setLoading] = React.useState(false);
             const [loadingStep, setLoadingStep] = React.useState(0);
-            const [result, setResult] = React.useState(() => {
-                const saved = localStorage.getItem('sima_last_result');
-                return saved ? JSON.parse(saved) : null;
-            });
+            const [result, setResult] = React.useState(null);
             const [showAdminPanel, setShowAdminPanel] = React.useState(false);
-            const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-            const [retryCount, setRetryCount] = React.useState(0);
-
-            // مراقبة حالة الاتصال
-            React.useEffect(() => {
-                const handleOnline = () => setIsOnline(true);
-                const handleOffline = () => setIsOnline(false);
-                window.addEventListener('online', handleOnline);
-                window.addEventListener('offline', handleOffline);
-                return () => {
-                    window.removeEventListener('online', handleOnline);
-                    window.removeEventListener('offline', handleOffline);
-                };
-            }, []);
-
             React.useEffect(() => {
                 if (darkMode) {
                     document.documentElement.classList.add('dark');
@@ -195,7 +153,6 @@
                     document.documentElement.classList.remove('dark');
                 }
             }, [darkMode]);
-
             React.useEffect(() => {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
@@ -203,7 +160,6 @@
                     setShowInstallBtn(true);
                 });
             }, []);
-
             React.useEffect(() => {
                 let interval;
                 if (loading) {
@@ -215,14 +171,6 @@
                 }
                 return () => clearInterval(interval);
             }, [loading]);
-
-            // حفظ النتيجة تلقائياً
-            React.useEffect(() => {
-                if (result) {
-                    localStorage.setItem('sima_last_result', JSON.stringify(result));
-                }
-            }, [result]);
-
             const handleInstallApp = async () => {
                 if (!deferredPrompt) {
                     alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
@@ -233,12 +181,10 @@
                 if (outcome === 'accepted') setShowInstallBtn(false);
                 setDeferredPrompt(null);
             };
-
             const saveUsersToDB = (updatedList) => {
                 setUsersList(updatedList);
                 localStorage.setItem('sima_masked_users', JSON.stringify(updatedList));
             };
-
             const handleAdminLogin = () => {
                 if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
@@ -252,7 +198,6 @@
                     alert('رمز مرور الإدارة العام غير صحيح!');
                 }
             };
-
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -271,7 +216,6 @@
                     alert('بيانات الدخول غير مطابقة.');
                 }
             };
-
             const handleRegister = () => {
                 if (!regNameInput.trim() || !regPasswordInput) {
                     alert('يرجى ملء الاسم وكلمة السر الكاملة.');
@@ -288,18 +232,15 @@
                 setRegNameInput('');
                 setRegPasswordInput('');
             };
-
             const toggleUserStatus = (name) => {
                 const updated = usersList.map(u => u.name === name ? { ...u, status: u.status === 'active' ? 'pending' : 'active' } : u);
                 saveUsersToDB(updated);
             };
-
             const deleteUser = (name) => {
                 if(confirm(`حذف نهائي للحساب: ${name}؟`)) {
                     saveUsersToDB(usersList.filter(u => u.name !== name));
                 }
             };
-
             const handleLogout = () => {
                 setUserRole(null);
                 setCurrentUserName('');
@@ -307,17 +248,13 @@
                 localStorage.removeItem('sima_pwa_name');
                 setCurrentView('landing');
                 setShowAdminPanel(false);
-                setResult(null);
-                localStorage.removeItem('sima_last_result');
             };
-
             const handleSaveMaskedKey = (rawKey) => {
                 const cipher = maskData(rawKey);
                 setMaskedApiKey(cipher);
                 localStorage.setItem('sima_api_hidden_mask', cipher);
                 localStorage.setItem('sima_key_type', keyType);
             };
-
             const compressAndSetImage = (file) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -327,7 +264,6 @@
                         let width = img.width;
                         let height = img.height;
                         const max_size = 380; 
-
                         if (width > height) {
                             if (width > max_size) {
                                 height *= max_size / width;
@@ -339,30 +275,25 @@
                                 height = max_size;
                             }
                         }
-
                         canvas.width = width;
                         canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-
                         const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.45); 
                         setImage(compressedDataUrl);
                         setCompressedBase64(compressedDataUrl.split(',')[1]);
                         setResult(null);
-                        localStorage.removeItem('sima_last_result');
                     };
                     img.src = event.target.result;
                 };
                 reader.readAsDataURL(file);
             };
-
             const handleFileChange = (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     compressAndSetImage(file);
                 }
             };
-
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
                 const realKey = unmaskData(maskedApiKey);
@@ -370,14 +301,7 @@
                     alert('تنبيه: يرجى وضع مفتاح الخادم (API Key) في لوحة الإدارة أولاً.');
                     return;
                 }
-
-                if (!isOnline) {
-                    alert('الجهاز غير متصل بالإنترنت. يرجى التحقق من الاتصال.');
-                    return;
-                }
-
                 setLoading(true);
-                setRetryCount(0);
                 
                 const prompt = `
                     قم بتحليل ملامح الوجه في هذه الصورة تحليلاً تفصيلياً وموسعاً جداً باللغة العربية.
@@ -393,116 +317,50 @@
                       "tips": "مجموعة من التوصيات والنصائح العميقة والمخصصة لدعم الحضور والجمال والملامح البنيوية."
                     }
                 `;
-
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
-                
-                // قائمة موسعة من Proxies
                 const proxyEndpoints = [
                     `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                    targetUrl
+                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
                 ];
-
                 let success = false;
-                let lastError = null;
-
-                const fetchWithTimeout = (url, options, timeout = 20000) => {
-                    return Promise.race([
-                        fetch(url, options),
-                        new Promise((_, reject) => 
-                            setTimeout(() => reject(new Error('انتهت مهلة الاتصال')), timeout)
-                        )
-                    ]);
-                };
-
                 for (let i = 0; i < proxyEndpoints.length; i++) {
-                    if (success) break;
-                    
-                    for (let attempt = 0; attempt < 3; attempt++) {
-                        if (success) break;
-                        
+                    try {
+                        const response = await fetch(proxyEndpoints[i], {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }]
+                            })
+                        });
+                        if (!response.ok) throw new Error("تم حظر المسار");
+                        const data = await response.json();
+                        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                        if (!rawText) throw new Error("استجابة غير مقروءة.");
                         try {
-                            setRetryCount(prev => prev + 1);
-                            
-                            const response = await fetchWithTimeout(proxyEndpoints[i], {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                },
-                                body: JSON.stringify({
-                                    contents: [{ 
-                                        parts: [
-                                            { text: prompt }, 
-                                            { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }
-                                        ] 
-                                    }]
-                                })
-                            }, 20000);
-
-                            if (!response.ok) {
-                                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                            }
-
-                            const data = await response.json();
-                            const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-                            
-                            if (!rawText) {
-                                throw new Error("استجابة فارغة من الخادم");
-                            }
-
-                            try {
-                                const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-                                const parsedResult = JSON.parse(cleanJsonStr);
-                                setResult(parsedResult);
-                                success = true;
-                                break;
-                            } catch (jsonErr) {
-                                setResult({
-                                    score: 80,
-                                    summary: rawText.substring(0, 500) + (rawText.length > 500 ? '...' : ''),
-                                    eyes: "تم الدمج في الملخص التنفيذي",
-                                    nose: "تم الدمج في الملخص التنفيذي",
-                                    lips: "تم الدمج في الملخص التنفيذي",
-                                    jaw: "تم الدمج في الملخص التنفيذي",
-                                    energy: "تم الدمج في الملخص التنفيذي",
-                                    tips: "يرجى قراءة الملخص التنفيذي للحصول على التوصيات"
-                                });
-                                success = true;
-                                break;
-                            }
-
-                        } catch (err) {
-                            lastError = err;
-                            
-                            if (attempt < 2) {
-                                await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
-                            }
+                            const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                            setResult(JSON.parse(cleanJsonStr));
+                        } catch (jsonErr) {
+                            setResult({
+                                score: 85,
+                                summary: rawText,
+                                eyes: "تم الدمج في الملخص التنفيذي أعلاه.", nose: "تم الدمج في الملخص التنفيذي أعلاه.",
+                                lips: "تم الدمج في الملخص التنفيذي أعلاه.", jaw: "تم الدمج في الملخص التنفيذي أعلاه.",
+                                energy: "تم الدمج في الملخص التنفيذي أعلاه.", tips: "تأمل النصائح البرمجية أعلاه."
+                            });
                         }
-                    }
-                    
-                    if (!success && i < proxyEndpoints.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        success = true;
+                        break; 
+                    } catch (err) {
+                        // الانتقال للممر الآخر تلقائياً
                     }
                 }
-
-                setLoading(false);
-
                 if (!success) {
-                    let errorMessage = '⚠️ تعذر الاتصال بالخادم. الأسباب المحتملة:\n\n';
-                    errorMessage += '• ضعف إشارة الشبكة أو عدم الاستقرار\n';
-                    errorMessage += '• حظر مؤقت من مزود الخدمة\n';
-                    errorMessage += '• انتهاء مهلة الاتصال\n\n';
-                    errorMessage += '💡 حلول مقترحة:\n';
-                    errorMessage += '• انتظر بضع ثوان وأعد المحاولة\n';
-                    errorMessage += '• أعد تشغيل التطبيق\n';
-                    errorMessage += '• جرب في وقت آخر عندما تكون الشبكة أكثر استقراراً';
-                    
-                    alert(errorMessage);
+                    alert(`تنبيه من جدار الحماية: تم حجب الاتصال مؤقتاً بسبب قيود الشبكة المحلية. يرجى تفعيل الـ VPN أو تبديل الاتصال من البيانات (Data) إلى الـ Wi-Fi لإعادة فتح المسار.`);
                 }
+                setLoading(false);
             };
-
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
                     
@@ -521,23 +379,7 @@
                                     </p>
                                 </div>
                             </div>
-
                             <div className="flex items-center gap-2">
-                                {/* مؤشر حالة الاتصال */}
-                                <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800">
-                                    {isOnline ? (
-                                        <>
-                                            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 connection-dot"></span>
-                                            <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400">متصل</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span>
-                                            <span className="text-[10px] font-black text-red-600 dark:text-red-400">غير متصل</span>
-                                        </>
-                                    )}
-                                </div>
-
                                 {showInstallBtn && (
                                     <button onClick={handleInstallApp} className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center gap-1.5 shadow-md animate-bounce">
                                         <Icons.PlusCircle className="w-4 h-4" /> تثبيت المنصة
@@ -559,7 +401,6 @@
                             </div>
                         </div>
                     </header>
-
                     {/* المحتوى الرئيسي */}
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
@@ -588,7 +429,6 @@
                                 </div>
                             </section>
                         )}
-
                         {!userRole && currentView === 'login_admin' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-amber-500 flex items-center gap-2"><Icons.Lock className="w-5 h-5" /> دخول الإدارة العام</h3>
@@ -603,7 +443,6 @@
                                 </div>
                             </div>
                         )}
-
                         {!userRole && currentView === 'login_member' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-purple-600 flex items-center gap-2"><Icons.User className="w-5 h-5" /> بوابة الأعضاء</h3>
@@ -625,7 +464,6 @@
                                 </div>
                             </div>
                         )}
-
                         {!userRole && currentView === 'register' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-emerald-500 flex items-center gap-2"><Icons.UserPlus className="w-5 h-5" /> طلب عضوية محمية جديدة</h3>
@@ -647,7 +485,6 @@
                                 </div>
                             </div>
                         )}
-
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
@@ -665,7 +502,6 @@
                                         />
                                     </div>
                                 </div>
-
                                 <div className="space-y-3">
                                     <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين المشتركين:</span>
                                     <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
@@ -702,20 +538,13 @@
                                 </div>
                             </section>
                         )}
-
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
                                         الحساب النشط حالياً: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار حماية المسارات مفعل تلقائياً.
                                     </p>
-                                    {result && (
-                                        <p className="text-xs text-slate-400 mt-1">
-                                            💾 تم حفظ آخر نتيجة محلياً
-                                        </p>
-                                    )}
                                 </section>
-
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
                                     {!image ? (
                                         <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
@@ -728,37 +557,19 @@
                                         <div className="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800">
                                             <img src={image} alt="Face Preview" className="max-h-[350px] w-full object-contain mx-auto" />
                                             <div className="absolute bottom-4 right-4 left-4 flex justify-between items-center gap-2">
-                                                <button onClick={() => { setImage(null); setCompressedBase64(null); setResult(null); localStorage.removeItem('sima_last_result'); }} className="px-4 py-2.5 bg-red-600 text-white rounded-xl shadow-md font-black text-xs flex items-center gap-1.5"><Icons.Trash2 className="w-4 h-4" /> إلغاء الصورة</button>
-                                                {!result && !loading && (
-                                                    <button 
-                                                        onClick={executeGeminiAnalysis} 
-                                                        disabled={!isOnline}
-                                                        className={`px-6 py-3 rounded-xl shadow-lg font-black flex items-center gap-2 text-xs transition-colors ${isOnline ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-slate-400 text-slate-200 cursor-not-allowed'}`}
-                                                    >
-                                                        <Icons.Sparkles className="w-5 h-5" /> 
-                                                        {isOnline ? 'تشغيل التحليل الموسع الشامل' : 'غير متصل'}
-                                                    </button>
-                                                )}
+                                                <button onClick={() => { setImage(null); setCompressedBase64(null); setResult(null); }} className="px-4 py-2.5 bg-red-600 text-white rounded-xl shadow-md font-black text-xs flex items-center gap-1.5"><Icons.Trash2 className="w-4 h-4" /> إلغاء الصورة</button>
+                                                {!result && !loading && <button onClick={executeGeminiAnalysis} className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg font-black flex items-center gap-2 text-xs transition-colors"><Icons.Sparkles className="w-5 h-5" /> تشغيل التحليل الموسع الشامل</button>}
                                             </div>
                                         </div>
                                     )}
                                 </section>
-
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
                                         <h3 className="text-base font-black mb-1">جاري تحليل الصورة ومعالجة البيانات...</h3>
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
-                                        <p className="text-xs text-slate-400 mt-2">محاولة الاتصال رقم: {retryCount}</p>
-                                        <button 
-                                            onClick={() => { setLoading(false); setLoadingStep(0); }} 
-                                            className="mt-4 px-4 py-2 bg-red-500/10 text-red-600 rounded-xl text-sm font-black hover:bg-red-500/20 transition-colors"
-                                        >
-                                            إلغاء وإعادة المحاولة
-                                        </button>
                                     </section>
                                 )}
-
                                 {result && !loading && (
                                     <div className="space-y-5">
                                         <div className="bg-white dark:bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-md text-right space-y-3">
@@ -774,7 +585,6 @@
                                                 {result?.summary}
                                             </p>
                                         </div>
-
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-purple-600 dark:text-purple-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
@@ -782,35 +592,30 @@
                                                 </h4>
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.eyes}</p>
                                             </div>
-
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.Compass className="w-4 h-4" /> 2. الأنف والتناظر البنيوي الأوسط
                                                 </h4>
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.nose}</p>
                                             </div>
-
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.Smile className="w-4 h-4" /> 3. الشفاه، الابتسامة ونمط التعبير والانفعال
                                                 </h4>
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.lips}</p>
                                             </div>
-
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-blue-600 dark:text-blue-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.ScanFace className="w-4 h-4" /> 4. محيط الفك، الجبهة والنسبة الذهبية الوجهية
                                                 </h4>
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.jaw}</p>
                                             </div>
-
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.Heart className="w-4 h-4" /> 5. الكاريزما، الحيوية والطاقة النفسية المنعكسة
                                                 </h4>
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.energy}</p>
                                             </div>
-
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-orange-600 dark:text-orange-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.Star className="w-4 h-4" /> 6. التوصيات التطويرية والجمالية المخصصة
@@ -822,23 +627,20 @@
                                 )}
                             </div>
                         )}
-
                     </main>
-
                     {/* الفوتر */}
                     <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
                         <div className="text-sm font-black text-slate-300">
                             تم التصميم والتطوير بواسطة <span className="text-white font-black tracking-wide">الدكتور زكريا محمد عطوني</span> © 2026
                         </div>
                     </footer>
-
                 </div>
             );
         }
-
         const container = document.getElementById('sima-app-root');
         const root = ReactDOM.createRoot(container);
         root.render(<SimaApplication />);
     </script>
 </body>
 </html>
+ 

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سِيما (Sima) - المنصة الذكية لفك شفرات ملامح الوجه</title>
+    
+    <!-- خط Cairo الفاخر من Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- استدعاء المكتبات البرمجية الأساسية عبر CDN لضمان التشغيل الفوري المباشر -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .circle-bg { fill: none; stroke: #e2e8f0; }
+        .dark .circle-bg { stroke: #1e293b; }
+        .circle-progress { fill: none; stroke-linecap: round; transition: stroke-dashoffset 1.5s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300 min-h-screen">
+
+    <div id="sima-app-root"></div>
+
+    <script type="text/babel">
+        const { 
+            Sparkles, Camera, Upload, Trash2, Copy, Download, 
+            ShieldCheck, Moon, Sun, RefreshCw, BarChart3, Heart, 
+            Smile, Lightbulb, Users, Info, Cpu, Key
+        } = window.lucide || {
+            Sparkles: () => <span>✨</span>, Camera: () => <span>📷</span>, Upload: () => <span>📤</span>,
+            Trash2: () => <span>🗑️</span>, Copy: () => <span>📋</span>, Download: () => <span>💾</span>,
+            ShieldCheck: () => <span>🛡️</span>, Moon: () => <span>🌙</span>, Sun: () => <span>☀️</span>,
+            RefreshCw: () => <span>🔄</span>, BarChart3: () => <span>📊</span>, Heart: () => <span>❤️</span>,
+            Smile: () => <span>😊</span>, Lightbulb: () => <span>💡</span>, Users: () => <span>👥</span>,
+            Info: () => <span>ℹ️</span>, Cpu: () => <span>🤖</span>, Key: () => <span>🔑</span>
+        };
+
+        const DEMO_CHARACTERS = [
+            {
+                id: 'malak',
+                name: 'ملاك',
+                avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
+            },
+            {
+                id: 'omar',
+                name: 'عمر',
+                avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400',
+            }
+        ];
+
+        const LOADING_STEPS = [
+            "جاري اكتشاف الوجه...",
+            "استخراج النقاط المرجعية...",
+            "تحليل تناسق الملامح...",
+            "قياس زوايا الوجه...",
+            "تحليل العينين...",
+            "تحليل الأنف...",
+            "تحليل الابتسامة...",
+            "تحليل خطوط الوجه...",
+            "تحليل نسب الوجه...",
+            "تقييم الإضاءة...",
+            "بناء النموذج ثلاثي الأبعاد...",
+            "تحليل الانطباع الأول...",
+            "إعداد التقرير النهائي..."
+        ];
+
+        function SimaApplication() {
+            const [darkMode, setDarkMode] = React.useState(false);
+            const [keyType, setKeyType] = React.useState(() => localStorage.getItem('sima_key_type') || 'google-ai');
+            const [apiKey, setApiKey] = React.useState(() => localStorage.getItem('sima_api_key') || '');
+            const [image, setImage] = React.useState(null);
+            const [loading, setLoading] = React.useState(false);
+            const [loadingStep, setLoadingStep] = React.useState(0);
+            const [result, setResult] = React.useState(null);
+
+            React.useEffect(() => {
+                if (darkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [darkMode]);
+
+            React.useEffect(() => {
+                let interval;
+                if (loading) {
+                    interval = setInterval(() => {
+                        setLoadingStep((prev) => (prev + 1) % LOADING_STEPS.length);
+                    }, 2000);
+                } else {
+                    setLoadingStep(0);
+                }
+                return () => clearInterval(interval);
+            }, [loading]);
+
+            const handleFileChange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImage(reader.result);
+                        setResult(null);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleSelectDemo = async (url) => {
+                setLoading(true);
+                setResult(null);
+                try {
+                    const response = await fetch(url);
+                    const blob = await response.blob();
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setImage(reader.result);
+                        executeGeminiAnalysis(reader.result);
+                    };
+                    reader.readAsDataURL(blob);
+                } catch (error) {
+                    setLoading(false);
+                    alert('حدث خطأ أثناء تحميل الصورة التجريبية، يرجى المحاولة مرة أخرى.');
+                }
+            };
+
+            // محرك التحليل المتطور القابل للتعامل مع بروتوكولات المفاتيح القديمة والحديثة تلقائياً
+            const executeGeminiAnalysis = async (targetImage) => {
+                const imageToAnalyze = targetImage || image;
+                if (!imageToAnalyze) {
+                    alert('الرجاء اختيار أو رفع صورة أولاً للبدء');
+                    return;
+                }
+                if (!apiKey) {
+                    alert('الرجاء إدخال مفتاح غوغل الفعال للبدء.');
+                    return;
+                }
+
+                setLoading(true);
+                localStorage.setItem('sima_api_key', apiKey);
+                localStorage.setItem('sima_key_type', keyType);
+
+                try {
+                    const base64Data = imageToAnalyze.split(',')[1];
+                    const mimeType = imageToAnalyze.split(',')[0].match(/:(.*?);/)[1];
+
+                    const prompt = `
+                        قم بتحليل ملامح الوجه في هذه الصورة تحليلاً جمالياً وسلوكياً دقيقاً بناءً على المقاييس الظاهرة فقط.
+                        يجب أن تعيد النتيجة بصيغة JSON فقط، باللغة العربية تماماً، وبدون أي علامات تنصيص كودية أو نصوص خارج الكائن.
+                        تأكد من ملء جميع الحقول المطلوبة بالقيم والتحليلات المناسبة.
+
+                        شكل الـ JSON المطلوب بدقة:
+                        {
+                          "beauty": {
+                            "score": 92,
+                            "summary": "نص تلخيصي جمالي إيجابي وشامل للوجه والملامح وتناسقها",
+                            "strengths": ["نقطة الجمال الأولى", "نقطة الجمال الثانية", "نقطة الجمال الثالثة"],
+                            "goldenRatio": "وصف دقيق وتفصيلي لتقارب الملامح مع النسب الذهبية وتناسق الأبعاد والشكل العام للوجه وباقي العناصر الفرعية كالعين والحاجب والأنف والفم والابتسامة والفك والذقن والبشرة",
+                            "glow": "وصف دقيق لإشراقة ونضارة البشرة وجودة توزيع الإضاءة الطبيعية في الصورة",
+                            "tips": ["نصيحة مخصصة أولى لتعزيز الجمال الطبيعي والعناية", "نصيحة ثانية مخصصة لتعزيز الجمال الطبيعي"]
+                          },
+                          "expression": {
+                            "expression": "التعبير الظاهر بالصورة (مثل: مبتسم، هادئ، واثق، جاد)",
+                            "firstImpression": "الانطباع الأول التفصيلي الذي تتركه الملامح لدى الآخرين وعلاقتها بالثقة بالنفس والهدوء",
+                            "traits": ["سمة سلوكية أولى مستوحاة من لغة الجسد", "سمة سلوكية ثانية", "سمة سلوكية ثالثة"],
+                            "energy": "تحليل دقيق لمستوى الهدوء والطاقة والحضور في الصورة",
+                            "communication": "وصف أسلوب التواصل المتوقع بناءً على انفتاح الملامح والابتسامة ونظرة العينين",
+                            "suggestions": ["مؤشر انفعالي حالي أول", "مؤشر انفعالي حالي ثانٍ"],
+                            "message": "رسالة تحفيزية ملهمة ومخصصة للمستخدم بناءً على انطباع صورته الحالية"
+                          }
+                        }
+                    `;
+
+                    // بناء الرابط البرمي ديناميكياً استناداً إلى خيار العميل ونوع المفتاح
+                    let endpoint = '';
+                    if (keyType === 'google-ai') {
+                        // رابط منصة Google AI Studio التقليدي (مفاتيح تبدأ بـ AIza)
+                        endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                    } else {
+                        // رابط المحركات وبوابات سحابة غوغل المتطورة والأحدث (Cloud Engine Endpoint)
+                        endpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+                    }
+                    
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [
+                                    { text: prompt },
+                                    { inlineData: { mimeType: mimeType, data: base64Data } }
+                                ]
+                            }]
+                        })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.error) {
+                        throw new Error(data.error.message || 'خطأ في المصادقة أو صلاحية المفتاح.');
+                    }
+
+                    const rawText = data.candidates[0].content.parts[0].text.trim();
+                    const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                    const parsedResult = JSON.parse(cleanJsonStr);
+
+                    if (parsedResult.beauty && parsedResult.expression) {
+                        setResult(parsedResult);
+                    } else {
+                        throw new Error('Incomplete data signature');
+                    }
+
+                } catch (error) {
+                    console.error(error);
+                    alert(`حدث خطأ أثناء الفحص: ${error.message || 'يرجى التحقق من نوع المفتاح المختار وصلاحيته وجودة تفاصيل الصورة.'}`);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const copyToClipboard = () => {
+                if (!result) return;
+                const reportText = `
+=== تقرير تطبيق سِيما الذكي لملامح الوجه ===
+درجة التناسق التقريبية: ${result.beauty.score}/100
+
+[التحليل الجمالي]
+• الخلاصة والملخص: ${result.beauty.summary}
+• أبرز نقاط الجمال: ${result.beauty.strengths.join(' - ')}
+• التناسق والنسب الذهبية: ${result.beauty.goldenRatio}
+• إشراقة الوجه: ${result.beauty.glow}
+• التوصيات الجمالية: ${result.beauty.tips.join(' | ')}
+
+[تحليل تعابير الوجه والانطباعات]
+• التعبير الحالي: ${result.expression.expression}
+• الانطباع الأول: ${result.expression.firstImpression}
+• السمات السلوكية: ${result.expression.traits.join(' - ')}
+• أسلوب التواصل المتوقع: ${result.expression.communication}
+• الهدوء والطاقة: ${result.expression.energy}
+• المؤشرات الانفعالية الحالية: ${result.expression.suggestions.join(' - ')}
+• الرسالة التحفيزية المخصصة: ${result.expression.message}
+
+* ملاحظة: هذه التحليلات تقديرية تعتمد على تقنيات الذكاء الاصطناعي لأغراض معرفية وترفيهية فقط.
+تم التصميم والتطوير بواسطة الدكتور زكريا محمد عطوني © 2026
+                `.trim();
+                
+                navigator.clipboard.writeText(reportText);
+                alert('تم نسخ التقرير الكامل بنجاح إلى الحافظة!');
+            };
+
+            const downloadReportFile = () => {
+                if (!result) return;
+                const reportText = `
+=== تقرير تطبيق سِيما الذكي لملامح الوجه ===
+درجة التناسق التقريبية: ${result.beauty.score}/100
+
+[التحليل الجمالي]
+• الخلاصة والملخص: ${result.beauty.summary}
+• أبرز نقاط الجمال: ${result.beauty.strengths.join('\n  - ')}
+• التناسق والنسب الذهبية: ${result.beauty.goldenRatio}
+• إشراقة الوجه: ${result.beauty.glow}
+• التوصيات الجمالية: ${result.beauty.tips.join('\n  - ')}
+
+[تحليل تعابير الوجه والانطباعات]
+• التعبير الحالي: ${result.expression.expression}
+• الانطباع الأول: ${result.expression.firstImpression}
+• السمات السلوكية: ${result.expression.traits.join('\n  - ')}
+• أسلوب التواصل المتوقع: ${result.expression.communication}
+• الهدوء والطاقة: ${result.expression.energy}
+• المؤشرات الانفعالية الحالية: ${result.expression.suggestions.join('\n  - ')}
+• الرسالة التحفيزية المخصصة: ${result.expression.message}
+
+--------------------------------------------------
+* ملاحظة: هذه التحليلات تقديرية تعتمد على تقنيات الذكاء الاصطناعي لأغراض معرفية وترفيهية فقط ولا تمثل حكماً علمياً أو طبياً.
+تم التصميم والتطوير بواسطة الدكتور زكريا محمد عطوني © 2026
+                `.trim();
+
+                const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Sima-${result.beauty.score}.txt`;
+                link.click();
+                URL.revokeObjectURL(url);
+            };
+
+            return (
+                <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
+                    
+                    <div className="absolute top-0 left-0 w-full h-[500px] overflow-hidden pointer-events-none z-0 opacity-30 dark:opacity-20">
+                        <div className="absolute -top-[20%] right-[10%] w-[400px] h-[400px] rounded-full bg-purple-600 blur-[130px]"></div>
+                        <div className="absolute top-[10%] left-[5%] w-[350px] h-[350px] rounded-full bg-blue-600 blur-[110px]"></div>
+                    </div>
+
+                    <header className="relative z-10 border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur-md">
+                        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+                            <div className="flex items-center gap-2">
+                                <Cpu className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                <span className="text-xs font-bold tracking-wider text-slate-400">GEMINI HYBRID MULTI-KEY SYSTEM</span>
+                            </div>
+                            <button 
+                                onClick={() => setDarkMode(!darkMode)}
+                                className="p-2 rounded-xl bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-sm text-slate-600 dark:text-slate-300 hover:scale-105 transition-transform"
+                            >
+                                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="relative z-10 max-w-4xl mx-auto px-4 py-10 flex-grow w-full flex flex-col items-center">
+                        
+                        <section className="text-center mb-8 max-w-2xl">
+                            <h1 className="text-6xl md:text-7xl font-black mb-4 bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-400 bg-clip-text text-transparent drop-shadow-sm select-none">
+                                سِيما
+                            </h1>
+                            <p className="text-base md:text-lg font-bold text-slate-600 dark:text-slate-300 mb-5">
+                                المنصة الذكية لفك شفرات ملامح الوجه وتحليلها جماليًا وسلوكيًا.
+                            </p>
+                            
+                            <div className="flex gap-2.5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-800 dark:text-amber-300 text-xs md:text-sm leading-relaxed text-right backdrop-blur-md shadow-sm">
+                                <Info className="w-5 h-5 shrink-0 mt-0.5" />
+                                <p>
+                                    تعتمد تحليلات التطبيق على الذكاء الاصطناعي في دراسة ملامح الوجه والتعبيرات الظاهرة بالصورة، وتستند أوصاف السلوك والانطباعات إلى نماذج تحليلية لغرض معرفي ولا تمثل حكماً علمياً أو تشخيصاً نفسياً.
+                                </p>
+                            </div>
+                        </section>
+
+                        {/* قسم إعداد وإدخال أنواع المفاتيح الهجين الذكي */}
+                        <section className="w-full mb-6">
+                            <div className="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-4">
+                                <div>
+                                    <span className="block text-xs font-bold text-slate-400 mb-2">اختر بنية ونوع مفتاح المعالجة المستعمل:</span>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <button 
+                                            type="button"
+                                            onClick={() => setKeyType('google-ai')}
+                                            className={`p-3 rounded-xl border font-bold text-xs flex items-center justify-between transition-all ${keyType === 'google-ai' ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500'}`}
+                                        >
+                                            <span>مفتاح استوديو الذكاء الاصطناعي التقليدي (AIza)</span>
+                                            <Key className="w-4 h-4" />
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setKeyType('google-cloud')}
+                                            className={`p-3 rounded-xl border font-bold text-xs flex items-center justify-between transition-all ${keyType === 'google-cloud' ? 'border-purple-500 bg-purple-500/10 text-purple-600 dark:text-purple-400' : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-500'}`}
+                                        >
+                                            <span>مفاتيح السحابة والمحركات المحدثة والأحدث v1</span>
+                                            <Cpu className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold text-slate-400 mb-1.5 mr-1">أدخل رمز المفتاح السري (API Key):</label>
+                                    <input 
+                                        type="password" 
+                                        placeholder="أدخل مفتاح التحليل هنا..." 
+                                        value={apiKey}
+                                        onChange={(e) => setApiKey(e.target.value)}
+                                        className="w-full px-4 py-2.5 text-sm bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all text-left"
+                                    />
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="w-full mb-6">
+                            <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
+                                {!image ? (
+                                    <div className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-purple-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={handleFileChange} 
+                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" 
+                                        />
+                                        <div className="w-14 h-14 mx-auto mb-3 bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full flex items-center justify-center">
+                                            <Upload className="w-6 h-6" />
+                                        </div>
+                                        <h3 className="text-base font-bold mb-1">اضغط هنا لتصفح ملفات جهازك واختيار الصورة</h3>
+                                        <p className="text-xs text-slate-400">أو قم بإسقاط ملف الصورة مباشرة داخل هذا المربع</p>
+                                    </div>
+                                ) : (
+                                    <div className="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+                                        <img src={image} alt="Face Preview" className="max-h-[340px] w-full object-contain mx-auto" />
+                                        <div className="absolute bottom-4 right-4 left-4 flex justify-between items-center flex-wrap gap-2">
+                                            <button 
+                                                onClick={() => { setImage(null); setResult(null); }}
+                                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-md transition-colors flex items-center gap-1.5 text-xs font-bold"
+                                            >
+                                                <Trash2 className="w-4 h-4" /> حذف الصورة
+                                            </button>
+                                            {!result && !loading && (
+                                                <button 
+                                                    onClick={() => executeGeminiAnalysis()}
+                                                    className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl shadow-lg font-bold flex items-center gap-1.5 text-xs"
+                                                >
+                                                    <Sparkles className="w-4 h-4" /> ابدأ فك الشفرات والتحليل الآن
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {!image && (
+                                    <div className="mt-5 pt-5 border-t border-slate-200/60 dark:border-slate-800/60">
+                                        <p className="text-xs font-bold text-slate-400 mb-3 flex items-center gap-1">
+                                            <Camera className="w-3.5 h-3.5" /> أو جرب مباشرة بضغطة واحدة عبر النماذج الافتراضية الجاهزة:
+                                        </p>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {DEMO_CHARACTERS.map((char) => (
+                                                <button
+                                                    key={char.id}
+                                                    onClick={() => handleSelectDemo(char.avatar)}
+                                                    className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 hover:border-purple-500 hover:bg-purple-500/5 transition-all text-right group"
+                                                >
+                                                    <img src={char.avatar} alt={char.name} className="w-11 h-11 rounded-lg object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                                    <div>
+                                                        <div className="font-bold text-xs text-slate-700 dark:text-slate-300 group-hover:text-purple-500">صورة تجريبية جاهزة: {char.name}</div>
+                                                        <div className="text-[10px] text-slate-400">تحليل وقراءة ومعالجة فورية</div>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {loading && (
+                            <section className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-lg text-center relative overflow-hidden my-4">
+                                <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-purple-500 to-sky-400 w-full animate-pulse"></div>
+                                <RefreshCw className="w-10 h-10 text-purple-500 animate-spin mx-auto mb-3" />
+                                <h3 className="text-lg font-bold mb-1">مصفوفة المعالجة وهندسة المؤشرات الحيوية تعمل الآن</h3>
+                                
+                                <div className="h-8 my-2 flex items-center justify-center">
+                                    <p className="text-purple-600 dark:text-purple-400 font-bold text-base transition-all duration-300">
+                                        {LOADING_STEPS[loadingStep]}
+                                    </p>
+                                </div>
+
+                                <div className="w-full bg-slate-100 dark:bg-slate-950 h-1.5 rounded-full overflow-hidden max-w-xs mx-auto mt-3">
+                                    <div 
+                                        className="bg-gradient-to-r from-purple-600 to-sky-400 h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${((loadingStep + 1) / LOADING_STEPS.length) * 100}%` }}
+                                    ></div>
+                                </div>
+                            </section>
+                        )}
+
+                        {result && !loading && (
+                            <div className="w-full space-y-6 mt-4">
+                                
+                                <div className="bg-gradient-to-br from-white to-purple-50/30 dark:from-slate-900 dark:to-purple-950/10 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md flex flex-col md:flex-row items-center gap-6">
+                                    <div className="relative w-32 h-32 flex items-center justify-center shrink-0">
+                                        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 140 140">
+                                            <circle cx="70" cy="70" r="58" strokeWidth="8" className="circle-bg" fill="none" />
+                                            <circle 
+                                                cx="70" cy="70" r="58" strokeWidth="9" className="circle-progress text-purple-600 dark:text-purple-400" 
+                                                strokeDasharray="364.4"
+                                                strokeDashoffset={364.4 - (364.4 * result.beauty.score) / 100}
+                                                fill="none" 
+                                            />
+                                        </svg>
+                                        <div className="absolute text-center">
+                                            <span className="text-3xl font-black">{result.beauty.score}</span>
+                                            <span className="text-[10px] block text-slate-400 font-bold">نسبة التناسق</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1.5 text-center md:text-right">
+                                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-bold rounded-md">
+                                            <Sparkles className="w-3 h-3" /> الخلاصة الشاملة لقراءة المحرك الذكي
+                                        </div>
+                                        <h3 className="text-xl font-bold">التقرير التحليلي البنيوي</h3>
+                                        <p className="text-xs md:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{result.beauty.summary}</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <h2 className="text-lg font-black flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
+                                        <Heart className="w-4 h-4" /> القسم الأول: التحليل الجمالي والبنيوي للملامح
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <h4 className="font-bold mb-2 text-xs text-slate-400 flex items-center gap-1"><BarChart3 className="w-3.5 h-3.5 text-purple-500" /> أبرز نقاط التناسق الجمالي وميزات الوجه</h4>
+                                            <ul className="space-y-1.5">
+                                                {result.beauty.strengths.map((str, i) => (
+                                                    <li key={i} className="text-xs font-bold flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                                                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> {str}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <h4 className="font-bold mb-1.5 text-xs text-slate-400 flex items-center gap-1"><Sparkles className="w-3.5 h-3.5 text-amber-500" /> ملامح الوجه والنسب الذهبية والتقارب البنيوي</h4>
+                                            <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">{result.beauty.goldenRatio}</p>
+                                        </div>
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <h4 className="font-bold mb-1.5 text-xs text-slate-400 flex items-center gap-1"><Smile className="w-3.5 h-3.5 text-emerald-500" /> وصف إشراقة الوجه وتوزيع الإضاءة والنضارة</h4>
+                                            <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">{result.beauty.glow}</p>
+                                        </div>
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <h4 className="font-bold mb-2 text-xs text-slate-400 flex items-center gap-1"><Lightbulb className="w-3.5 h-3.5 text-blue-500" /> توصيات وإرشادات مخصصة لتعزيز الجمال الطبيعي</h4>
+                                            <div className="space-y-1">
+                                                {result.beauty.tips.map((tip, i) => (
+                                                    <div key={i} className="text-[11px] bg-slate-100 dark:bg-slate-950 p-1.5 rounded-lg text-slate-600 dark:text-slate-300">• {tip}</div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <h2 className="text-lg font-black flex items-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+                                        <Users className="w-4 h-4" /> القسم الثاني: تحليل تعابير الوجه والانطباعات السلوكية المتوقعة
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <div className="mb-2">
+                                                <span className="text-[10px] font-bold text-slate-400 block mb-0.5">التعبير الظاهر بالصورة</span>
+                                                <span className="px-2.5 py-0.5 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold rounded-md text-xs">{result.expression.expression}</span>
+                                            </div>
+                                            <div>
+                                                <span className="text-[10px] font-bold text-slate-400 block mb-0.5">الانطباع الأول المنعكس</span>
+                                                <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">{result.expression.firstImpression}</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <h4 className="font-bold mb-1.5 text-xs text-slate-400">أسلوب التواصل المتوقع والسمات السلوكية</h4>
+                                            <p className="text-xs mb-2 font-bold text-slate-700 dark:text-slate-300">{result.expression.communication}</p>
+                                            <div className="flex flex-wrap gap-1">
+                                                {result.expression.traits.map((trait, i) => (
+                                                    <span key={i} className="text-[10px] px-2 py-0.5 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-md font-medium">{trait}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 shadow-sm">
+                                            <h4 className="font-bold mb-1.5 text-xs text-slate-400">مستوى الهدوء والطاقة والمؤشرات الحالية الظاهرة</h4>
+                                            <p className="text-xs mb-1.5 text-slate-600 dark:text-slate-400">{result.expression.energy}</p>
+                                            <div className="space-y-0.5">
+                                                {result.expression.suggestions.map((sug, i) => (
+                                                    <span key={i} className="block text-[11px] text-indigo-500 font-bold">• {sug}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-2xl p-4 shadow-md flex flex-col justify-between">
+                                            <h4 className="font-bold text-xs text-purple-100/80 mb-1.5">رسالة تحفيزية ملهمة ومخصصة لملامحك الحالية</h4>
+                                            <p className="text-sm font-bold italic leading-relaxed">"{result.expression.message}"</p>
+                                            <div className="text-left text-[9px] text-purple-200/50 mt-3">* تعتمد النتائج على تحليل الصورة الحالية وهي ذات طابع تقديري.</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col sm:flex-row gap-3 pt-3 justify-center">
+                                    <button 
+                                        onClick={copyToClipboard}
+                                        className="px-5 py-2.5 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 font-bold rounded-xl flex items-center justify-center gap-1.5 text-xs hover:scale-[1.02] transition-transform"
+                                    >
+                                        <Copy className="w-4 h-4" /> نسخ التقرير نصاً
+                                    </button>
+                                    <button 
+                                        onClick={downloadReportFile}
+                                        className="px-5 py-2.5 bg-purple-600 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 text-xs hover:bg-purple-700 hover:scale-[1.02] transition-transform shadow-md"
+                                    >
+                                        <Download className="w-4 h-4" /> تحميل التقرير (.txt)
+                                    </button>
+                                </div>
+
+                            </div>
+                        )}
+
+                        <section className="w-full mt-10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-5">
+                            <h3 className="text-sm font-bold mb-2 flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                <ShieldCheck className="w-4 h-4" /> الخصوصية والأمان الفوري للبصمة الحيوية
+                            </h3>
+                            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                <li className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> لا يتم تخزين الصور نهائياً داخل خوادم أو قواعد بيانات التطبيق.</li>
+                                <li className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> الصور تُستخدم فقط معالجةً وتحليلاً في لحظة تشغيل طلب الفحص الحالي.</li>
+                                <li className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> لا تتم مشاركة الصور أو البيانات المستخرجة مع أي مستخدم أو طرف آخر على الإطلاق.</li>
+                                <li className="flex items-center gap-1.5"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> يملك المستخدم الصلاحية الفورية والكاملة لحذف الصورة من التطبيق فور الانتهاء.</li>
+                            </ul>
+                        </section>
+
+                    </main>
+
+                    <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
+                        <div className="text-xs md:text-sm font-medium text-slate-300">
+                            تم التصميم والتطوير بواسطة <span className="text-white font-bold tracking-wide">الدكتور زكريا محمد عطوني</span> © 2026
+                        </div>
+                        <p className="max-w-3xl mx-auto text-[10px] leading-relaxed text-slate-500">
+                            "سِيما منصة ذكية لتحليل ملامح الوجه وتقديم أوصاف جمالية وسلوكية تقديرية باستخدام الذكاء الاصطناعي، ولا تُعد النتائج تشخيصاً طبياً أو نفسياً أو حكماً قطعياً على شخصية الإنسان."
+                        </p>
+                    </footer>
+
+                </div>
+            );
+        }
+
+        const container = document.getElementById('sima-app-root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<SimaApplication />);
+    </script>
+</body>
+</html>

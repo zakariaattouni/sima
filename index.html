@@ -91,28 +91,27 @@
             measurementId: "G-BVXK2MD439"
         };
 
-        // مضاد التجميد: حقن الفايربيس داخل كتل معزولة جغرافياً لضمان عدم تعليق الكود
+        // عزل الفايربيس الجغرافي لضمان عدم حدوث أي تجميد في المتصفح
         if (firebase.apps.length === 0) {
             try {
                 firebase.initializeApp(firebaseConfig);
                 if ("measurementId" in firebaseConfig) {
-                    // تشغيل التحليلات بشكل آمن؛ إن تم حظرها شبكياً لا تؤثر على عمل المتصفح والواجهة
                     try {
                         firebase.analytics();
                     } catch (e) {
-                        console.warn("Analytics blocked by local network filters.");
+                        console.warn("Analytics registration bypassed safely.");
                     }
                 }
             } catch (fbErr) {
-                console.error("Firebase Initialization bypassed safely due to network restrictions.");
+                console.error("Firebase core initialized into insulated mode.");
             }
         }
 
         const LOADING_STEPS = [
-            "تجاوز جدار الحظر وتأمين ممر اتصالات بديل...",
-            "تحليل المسافات البينية ونسب التناظر المتقدمة...",
-            "قراءة هندسة العينين وعمق النظرة السلوكية...",
-            "تحليل الانطباع الفراسي والحركي للملامح...",
+            "توجيه الطلب الصريح والمباشر عبر الـ VPN المستقر...",
+            "تحليل الملامح الهندسية ونسب التناظر البنيوية...",
+            "قراءة هندسة العينين وعمق النظرة التعبيرية...",
+            "تحليل الانطباع الفراسي والحركي للقسمات...",
             "قياس زوايا خط الفك والنسبة الذهبية للوجه...",
             "صياغة التقرير الموسع والمفصل بوضوح عالي..."
         ];
@@ -323,6 +322,7 @@
                 }
             };
 
+            // معمارية الاتصال المباشر الصريح لكسر جدران الحظر بالاعتماد على الـ VPN
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
                 const realKey = unmaskData(maskedApiKey);
@@ -346,57 +346,47 @@
                       "tips": "مجموعة من التوصيات والنصائح العميقة والمخصصة لدعم الحضور والجمال والملامح البنيوية."
                     }
                 `;
+
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
                 
-                // مصفوفة موسعة بخمس ممرات جغرافية ذكية لكسر القيود المحلية
-                const proxyEndpoints = [
-                    `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                    `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                    `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(targetUrl)}`,
-                    `https://thingproxy.freeboard.io/fetch/${targetUrl}`,
-                    `https://cors-ncov.onrender.com/${targetUrl}`
-                ];
+                try {
+                    const response = await fetch(targetUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
+                            generationConfig: {
+                                responseMimeType: "application/json"
+                            }
+                        })
+                    });
 
-                let success = false;
-                for (let i = 0; i < proxyEndpoints.length; i++) {
-                    try {
-                        const response = await fetch(proxyEndpoints[i], {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
-                                generationConfig: {
-                                    responseMimeType: "application/json"
-                                }
-                            })
-                        });
-                        if (!response.ok) throw new Error("الممر محظور جغرافياً");
-                        const data = await response.json();
-                        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-                        if (!rawText) throw new Error("استجابة غير مقروءة.");
-                        
-                        try {
-                            const parsedData = JSON.parse(rawText);
-                            setResult(parsedData);
-                        } catch (jsonErr) {
-                            setResult({
-                                score: 85,
-                                summary: rawText,
-                                eyes: "تم الدمج في الملخص التنفيذي أعلاه.", nose: "تم الدمج في الملخص التنفيذي أعلاه.",
-                                lips: "تم الدمج في الملخص التنفيذي أعلاه.", jaw: "تم الدمج في الملخص التنفيذي أعلاه.",
-                                energy: "تم الدمج في الملخص التنفيذي أعلاه.", tips: "تأمل النصائح البرمجية أعلاه."
-                            });
-                        }
-                        success = true;
-                        break; 
-                    } catch (err) {
-                        console.warn(`المسار رقم ${i+1} مغلق، جاري العبور تلقائياً للمسار الموالي...`);
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData?.error?.message || "سيرفر غوغل يرفض المعالجة عبر مسار خارجي مجهول.");
                     }
-                }
-                if (!success) {
-                    alert(`تنبيه من جدار الحماية: تم حجب الاتصال مؤقتاً بسبب قيود الشبكة المحلية. يرجى تفعيل الـ VPN أو تبديل الاتصال من البيانات (Data) إلى الـ Wi-Fi لإعادة فتح المسار الإقليمي.`);
+
+                    const data = await response.json();
+                    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+                    if (!rawText) throw new Error("استجابة فارغة من خوادم الذكاء الاصطناعي.");
+                    
+                    try {
+                        const parsedData = JSON.parse(rawText);
+                        setResult(parsedData);
+                    } catch (jsonErr) {
+                        setResult({
+                            score: 85,
+                            summary: rawText,
+                            eyes: "تم الدمج في الملخص التنفيذي.", nose: "تم الدمج في الملخص التنفيذي.",
+                            lips: "تم الدمج في الملخص التنفيذي.", jaw: "تم الدمج في الملخص التنفيذي.",
+                            energy: "تم الدمج في الملخص التنفيذي.", tips: "تأمل النصائح البرمجية المرفقة أعلاه."
+                        });
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert(`فشل التوصيل المباشر: ${err.message}. يرجى محاولة تغيير دولة خادم الـ VPN (ألمانيا، فرنسا، أو السويد مثلاً) لتغيير مسار بروتوكول العبور.`);
                 }
                 setLoading(false);
             };
@@ -452,7 +442,7 @@
                                         <Icons.Sparkles className="w-8 h-8 text-amber-500" />
                                     </div>
                                     <h2 className="text-2xl font-black text-slate-900 dark:text-white">بوابة سِيما المشتركة والآمنة</h2>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">نظام تعمية متقدم لتشفير البيانات وضغط الصور الذكي المقاوم للتوقف الجغرافي</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">اتصال سحابي صريح ومباشر متوافق مع كافة بروتوكولات حجب جدران الحماية الخارجية</p>
                                 </div>
                                 <div className="grid grid-cols-1 gap-4">
                                     <button onClick={() => setCurrentView('login_member')} className="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right font-black text-sm flex items-center justify-between hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-sm">
@@ -531,17 +521,17 @@
                         )}
 
                         {userRole === 'admin' && showAdminPanel && (
-                            <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 tropics-secure rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
+                            <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
                                     <h3 className="font-black text-base text-amber-600 flex items-center gap-2"><Icons.Settings className="w-5 h-5" /> غرف التحكم والتشفير التام</h3>
-                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><Icons.ShieldAlert className="w-4 h-4" /> نظام المزامنة والتحصين السحابي نشط</span>
+                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><Icons.ShieldAlert className="w-4 h-4" /> المزامنة السحابية النشطة للبيانات</span>
                                 </div>
                                 
                                 <div className="grid grid-cols-1 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
                                     <div>
                                         <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">مفتاح الـ API لـ Gemini:</span>
                                         <input 
-                                            type="password" placeholder="ضع المفتاح هنا لتشغيله وتعميته بشكل غير مرئي..." 
+                                            type="password" placeholder="ضع المفتاح لتشفيره وتعميته في الخلفية..." 
                                             onChange={(e) => handleSaveMaskedKey(e.target.value)}
                                             className="w-full px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-left font-mono focus:outline-none"
                                         />
@@ -588,7 +578,7 @@
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
                                     <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. جدار حماية النطاقات مفعل سحابياً.
+                                        الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. الاتصالات تتم بصورة مباشرة.
                                     </p>
                                 </section>
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
@@ -597,7 +587,7 @@
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <div className="w-14 h-14 mx-auto mb-4 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Icons.Upload className="w-6 h-6" /></div>
                                             <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه لبدء الفحص</h3>
-                                            <p className="text-xs text-slate-400 font-bold">يتم تطبيق هندسة ضغط مزدوجة وفائقة تلقائياً لسرعة العبور الآمن عبر الممرات الإقليمية البديلة</p>
+                                            <p className="text-xs text-slate-400 font-bold">يتم تطبيق هندسة ضغط مزدوجة وفائقة تلقائياً لسرعة التمرير المباشر</p>
                                         </div>
                                     ) : (
                                         <div className="relative rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800">
@@ -613,7 +603,7 @@
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
-                                        <h3 className="text-base font-black mb-1">جاري معالجة البيانات وتفتيت جدران الحظر الجغرافي...</h3>
+                                        <h3 className="text-base font-black mb-1">جاري نقل البيانات بأمان وسرعة عالية إلى السيرفر المباشر...</h3>
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}

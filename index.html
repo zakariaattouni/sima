@@ -106,7 +106,7 @@
         }
 
         const LOADING_STEPS = [
-            "تجاوز جدار الحظر وتأمين ممر اتصالات بديل...",
+            "معالجة وهندسة المؤشرات جارية الآن عبر الممرات البديلة",
             "تحليل المسافات البينية ونسب التناظر المتقدمة...",
             "قراءة هندسة العينين وعمق النظرة السلوكية...",
             "تحليل الانطباع الفراسي والحركي للملامح...",
@@ -618,8 +618,7 @@
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
-                                        <h3 className="text-base font-black mb-1">معالجة وهندسة المؤشرات جارية الآن عبر الممرات البديلة</h3>
-                                        <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
+                                        <h3 className="text-base font-black mb-1">{LOADING_STEPS[loadingStep]}</h3>
                                     </section>
                                 )}
 

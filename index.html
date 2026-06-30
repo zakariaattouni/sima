@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سِيما (Sima) - المنصة الذكية لفك شفرات ملامح الوجه</title>
     
-    <!-- خط Cairo الفاخر من Google Fonts -->
+    <!-- ميزات الـ PWA لجعل التطبيق قابلاً للتثبيت مع أيقونة على سطح الجهاز -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="سِيما">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2103/2103633.png">
+    
+    <!-- خط Cairo الفاخر وخط Reem Kufi الزخرفي من Google Fonts للعنوان الذهبي -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Reem+Kufi:wght@500;700;900&display=swap" rel="stylesheet">
 
     <!-- استدعاء المكتبات البرمجية الأساسية ومكتبات التشفير والـ Firebase عبر CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -28,6 +34,7 @@
                 extend: {
                     fontFamily: {
                         cairo: ['Cairo', 'sans-serif'],
+                        kufi: ['Reem Kufi', 'serif'],
                     }
                 }
             }
@@ -38,6 +45,13 @@
         body {
             font-family: 'Cairo', sans-serif;
             scroll-behavior: smooth;
+        }
+        /* تأثير لمعان ذهبي إضافي شعاعي */
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15));
         }
         .circle-bg { fill: none; stroke: #e2e8f0; }
         .dark .circle-bg { stroke: #1e293b; }
@@ -52,7 +66,7 @@
         const { 
             Sparkles, Camera, Upload, Trash2, Copy, Download, Check, X,
             ShieldCheck, Moon, Sun, RefreshCw, BarChart3, Heart, 
-            Smile, Lightbulb, Users, Info, Cpu, Key, Lock, Settings, User, UserPlus, LogOut
+            Smile, Lightbulb, Users, Info, Cpu, Key, Lock, Settings, User, UserPlus, LogOut, PlusCircle, ScanFace
         } = window.lucide || {
             Sparkles: () => <span>✨</span>, Camera: () => <span>📷</span>, Upload: () => <span>📤</span>,
             Trash2: () => <span>🗑️</span>, Copy: () => <span>📋</span>, Download: () => <span>💾</span>,
@@ -61,12 +75,12 @@
             Smile: () => <span>😊</span>, Lightbulb: () => <span>💡</span>, Users: () => <span>👥</span>,
             Info: () => <span>ℹ️</span>, Cpu: () => <span>🤖</span>, Key: () => <span>🔑</span>,
             Lock: () => <span>🔒</span>, Settings: () => <span>⚙️</span>, User: () => <span>👤</span>,
-            UserPlus: () => <span>👤+</span>, LogOut: () => <span>🚪</span>, Check: () => <span>✓</span>, X: () => <span>✗</span>
+            UserPlus: () => <span>👤+</span>, LogOut: () => <span>🚪</span>, Check: () => <span>✓</span>, X: () => <span>✗</span>,
+            PlusCircle: () => <span>➕</span>, ScanFace: () => <span>👤</span>
         };
 
         const ENCRYPTION_SALT = "SimaSecretSalt_2026";
 
-        // تهيئة وإعدادات الفايربيس الأساسية المرجعية الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyD08ozxrWCBrbCsx3ayz8Gykyy4Z7v7UEU",
             authDomain: "sima-4378c.firebaseapp.com",
@@ -112,21 +126,20 @@
         function SimaApplication() {
             const [darkMode, setDarkMode] = React.useState(false);
             
-            // إدارة الجلسات والدخول
             const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_user_role') || null);
             const [currentUserName, setCurrentUserName] = React.useState(() => localStorage.getItem('sima_user_name') || '');
             const [currentView, setCurrentView] = React.useState('landing'); 
             
-            // الحقول النصية للواجهات
+            const [deferredPrompt, setDeferredPrompt] = React.useState(null);
+            const [showInstallBtn, setShowInstallBtn] = React.useState(false);
+
             const [adminPasswordInput, setAdminPasswordInput] = React.useState('');
             const [memberNameInput, setMemberNameInput] = React.useState('');
             const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
             
-            // حقول التسجيل الجديد بالاسم وكلمة السر فقط
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
 
-            // محاكاة قاعدة بيانات المستخدمين المحفوظة محلياً والمشفرة (سيتم ترحيلها للفايربيس عند ربط الـ Firestore)
             const [usersList, setUsersList] = React.useState(() => {
                 const localData = localStorage.getItem('sima_users_db');
                 return localData ? JSON.parse(localData) : [
@@ -155,6 +168,20 @@
             }, [darkMode]);
 
             React.useEffect(() => {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    setDeferredPrompt(e);
+                    setShowInstallBtn(true);
+                });
+
+                window.addEventListener('appinstalled', () => {
+                    setShowInstallBtn(false);
+                    setDeferredPrompt(null);
+                    alert('تم تثبيت تطبيق سِيما بنجاح على سطح جهازك!');
+                });
+            }, []);
+
+            React.useEffect(() => {
                 let interval;
                 if (loading) {
                     interval = setInterval(() => {
@@ -166,7 +193,19 @@
                 return () => clearInterval(interval);
             }, [loading]);
 
-            // تحديث قاعدة البيانات في المتصفح تلقائياً عند تعديلها
+            const handleInstallApp = async () => {
+                if (!deferredPrompt) {
+                    alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" في المتصفح ثم اختر "إضافة إلى الشاشة الرئيسية".');
+                    return;
+                }
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    setShowInstallBtn(false);
+                }
+                setDeferredPrompt(null);
+            };
+
             const saveUsersToDB = (updatedList) => {
                 setUsersList(updatedList);
                 localStorage.setItem('sima_users_db', JSON.stringify(updatedList));
@@ -218,7 +257,6 @@
                     return;
                 }
 
-                // إضافة العضو الجديد بحالة معلقة (Pending) مشروطة بتفعيل المدير
                 const newUser = {
                     name: regNameInput.trim(),
                     password: regPasswordInput,
@@ -343,13 +381,34 @@
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
                     
-                    <header className="relative z-10 border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur-md">
-                        <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
-                            <div className="flex items-center gap-2">
-                                <Cpu className="w-5 h-5 text-purple-600" />
-                                <span className="text-xs font-bold text-slate-400">SIMA ADMIN-APPROVAL SYSTEM</span>
+                    {/* هيدر عصري متكامل مع لوجو ذكي، اسم زخرفي وشرح مصغر */}
+                    <header className="relative z-10 border-b border-slate-200/50 dark:border-slate-900/60 backdrop-blur-lg bg-white/70 dark:bg-slate-950/70 sticky top-0 px-4 py-3">
+                        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 justify-between items-center">
+                            
+                            {/* القسم الأيمن: اللوغو والاسم الزخرفي الذهبي والشرح المصغر */}
+                            <div className="flex items-center gap-3 text-center sm:text-right">
+                                <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-lg shadow-yellow-500/10 text-white relative group border border-amber-400/20">
+                                    <ScanFace className="w-6 h-6 animate-pulse" />
+                                    <div className="absolute inset-0 border-2 border-white/20 rounded-2xl scale-90 pointer-events-none"></div>
+                                </div>
+                                <div className="flex flex-col">
+                                    <h1 className="font-kufi font-black text-3xl tracking-wide gold-gradient-text leading-none py-1">سِيما</h1>
+                                    <p className="text-[10px] md:text-xs text-slate-400 dark:text-slate-500 font-bold mt-0.5">
+                                        المنصة الرقمية الذكية لفك شفرات ملامح الوجه والنسب الجمالية والتحليل السلوكي
+                                    </p>
+                                </div>
                             </div>
+
+                            {/* القسم الأيسر: أزرار التحكم والجلسة المستمرة */}
                             <div className="flex items-center gap-2">
+                                {showInstallBtn && (
+                                    <button 
+                                        onClick={handleInstallApp}
+                                        className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-black flex items-center gap-1 shadow-md hover:bg-emerald-700 transition-all animate-bounce"
+                                    >
+                                        <PlusCircle className="w-4 h-4" /> تثبيت على الجهاز
+                                    </button>
+                                )}
                                 {userRole === 'admin' && (
                                     <button 
                                         onClick={() => setShowAdminPanel(!showAdminPanel)}
@@ -378,9 +437,12 @@
                         {/* البوابة الثلاثية للدخول والتسجيل */}
                         {!userRole && currentView === 'landing' && (
                             <section className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl text-center space-y-6">
-                                <div>
-                                    <h2 className="text-4xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent mb-2">منصة سِيما الذكية</h2>
-                                    <p className="text-xs font-bold text-slate-400">نظام الدخول والتسجيل المشروط بموافقة الإدارة</p>
+                                <div className="space-y-1">
+                                    <div className="inline-block p-2 bg-amber-500/10 rounded-full mb-1">
+                                        <Sparkles className="w-6 h-6 text-amber-500" />
+                                    </div>
+                                    <h2 className="text-xl font-extrabold text-slate-800 dark:text-white">أهلاً بك في بوابة سِيما الذكية</h2>
+                                    <p className="text-xs text-slate-400 font-bold">نظام فحص وتنقيب حيوي مشروط بتفعيل فوري من قبل الإدارة</p>
                                 </div>
                                 <div className="grid grid-cols-1 gap-3">
                                     <button onClick={() => setCurrentView('login_member')} className="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right font-bold text-sm flex items-center justify-between hover:border-purple-500 transition-all">
@@ -396,6 +458,13 @@
                                         <span className="text-xs text-slate-400">←</span>
                                     </button>
                                 </div>
+                                
+                                <button 
+                                    onClick={handleInstallApp}
+                                    className="w-full mt-4 py-2 px-4 border border-emerald-500/30 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-600 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition-all"
+                                >
+                                    ✨ اضغط هنا لتثبيت أيقونة سِيما على سطح جهازك الحالي
+                                </button>
                             </section>
                         )}
 
@@ -462,7 +531,7 @@
                             </div>
                         )}
 
-                        {/* لوحة تحكم المدير المعززة (المفاتيح + تفعيل وفرملة طلبات الأعضاء) */}
+                        {/* لوحة تحكم المدير المعززة */}
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-purple-500/30 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b border-slate-100 dark:border-slate-800 pb-2 flex justify-between items-center">
@@ -543,19 +612,18 @@
                             </section>
                         )}
 
-                        {/* واجهة الفحص والتحليل لربط الصور بالذكاء الاصطناعي (تفتح فقط لمن يملك جلسة دور نشطة) */}
+                        {/* واجهة الفحص والتحليل */}
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
-                                    <h1 className="text-5xl font-black bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">سِيما</h1>
-                                    <p className="text-xs font-bold text-slate-500 mt-1">مرحباً بك: <span className="text-purple-600 font-black">{currentUserName}</span>. نظام معالجة ملامح الوجه جاهز للعمل.</p>
+                                    <p className="text-xs font-bold text-slate-500 mt-1">مرحباً بك مجدداً: <span className="text-amber-500 font-black">{currentUserName}</span>. نظام فك الشفرات الحيوي جاهز للعمل بنجاح.</p>
                                 </section>
 
                                 <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
                                     {!image ? (
-                                        <div className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-purple-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
+                                        <div className="border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                                            <div className="w-12 h-12 mx-auto mb-3 bg-purple-500/10 text-purple-600 rounded-full flex items-center justify-center"><Upload className="w-5 h-5" /></div>
+                                            <div className="w-12 h-12 mx-auto mb-3 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Upload className="w-5 h-5" /></div>
                                             <h3 className="text-sm font-bold mb-1">اضغط هنا لتصفح ملفات جهازك واختيار الصورة للتحليل</h3>
                                         </div>
                                     ) : (
@@ -563,7 +631,7 @@
                                             <img src={image} alt="Face Preview" className="max-h-[300px] w-full object-contain mx-auto" />
                                             <div className="absolute bottom-4 right-4 left-4 flex justify-between items-center gap-2">
                                                 <button onClick={() => { setImage(null); setResult(null); }} className="px-4 py-2 bg-red-600 text-white rounded-xl shadow-md font-bold text-xs flex items-center gap-1.5"><Trash2 className="w-4 h-4" /> حذف الصورة</button>
-                                                {!result && !loading && <button onClick={executeGeminiAnalysis} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl shadow-lg font-bold flex items-center gap-1.5 text-xs"><Sparkles className="w-4 h-4" /> ابدأ التحليل وفك الشفرات</button>}
+                                                {!result && !loading && <button onClick={executeGeminiAnalysis} className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg font-bold flex items-center gap-1.5 text-xs transition-colors"><Sparkles className="w-4 h-4" /> ابدأ التحليل وفك الشفرات</button>}
                                             </div>
                                         </div>
                                     )}
@@ -571,16 +639,16 @@
 
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
-                                        <RefreshCw className="w-8 h-8 text-purple-500 animate-spin mx-auto mb-2" />
+                                        <RefreshCw className="w-8 h-8 text-amber-500 animate-spin mx-auto mb-2" />
                                         <h3 className="text-sm font-bold mb-1">مصفوفة هندسة المؤشرات الحيوية تعمل الآن</h3>
-                                        <p className="text-purple-600 font-bold text-xs">{LOADING_STEPS[loadingStep]}</p>
+                                        <p className="text-amber-600 font-bold text-xs">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}
 
                                 {result && !loading && (
                                     <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md space-y-4">
                                         <div className="border-b border-slate-100 dark:border-slate-800 pb-3 text-right">
-                                            <div className="text-xs font-bold text-purple-600">درجة التناسق التقريبية: {result.beauty.score}/100</div>
+                                            <div className="text-xs font-bold text-amber-600">درجة التناسق التقريبية: {result.beauty.score}/100</div>
                                             <h3 className="text-lg font-bold mt-1">التقرير البنيوي الشامل للوجه</h3>
                                             <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">{result.beauty.summary}</p>
                                         </div>

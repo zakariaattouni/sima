@@ -15,6 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Reem+Kufi:wght@600;800;900&display=swap" rel="stylesheet">
+    
     <!-- استدعاء ملفات الـ CDN الأساسية فقط والمستقرة جداً -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -57,8 +58,9 @@
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300 min-h-screen font-bold">
     <div id="sima-app-root"></div>
+    
     <script type="text/babel">
-        // بناء الأيقونات برمجياً بصيغة SVG مدمجة لمنع اعتماد التطبيق على أي سيرفر خارجي للأيقونات ومنع الشاشة البيضاء نهائياً
+        // بناء الأيقونات برمجياً بصيغة SVG مدمجة
         const Icons = {
             ScanFace: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-16-4V7a3 3 0 013-3h10a3 3 0 013 3v5M9 10h.01M15 10h.01M12 14h.01" /></svg>,
             Sparkles: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
@@ -81,7 +83,9 @@
             Compass: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 7l1 4l4 1l-4 1l-1 4l-1 -4l-4 -1l4 -1z" /></svg>,
             Award: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v5m-3-3h6m-3-10a3 3 0 110-6 3 3 0 010 6zm0 0a7 7 0 100 14 7 7 0 000-14z" /></svg>
         };
+
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
+        
         const firebaseConfig = {
             apiKey: "AIzaSyD08ozxrWCBrbCsx3ayz8Gykyy4Z7v7UEU",
             authDomain: "sima-4378c.firebaseapp.com",
@@ -91,12 +95,14 @@
             appId: "1:978988425410:web:ec6ab58c99fce16cec9b5b",
             measurementId: "G-BVXK2MD439"
         };
+
         if (firebase.apps.length === 0) {
             firebase.initializeApp(firebaseConfig);
             if ("measurementId" in firebaseConfig) {
                 firebase.analytics();
             }
         }
+
         const LOADING_STEPS = [
             "تجاوز جدار الحظر وتأمين ممر اتصالات بديل...",
             "تحليل المسافات البينية ونسب التناظر المتقدمة...",
@@ -105,10 +111,12 @@
             "قياس زوايا خط الفك والنسبة الذهبية للوجه...",
             "صياغة التقرير الموسع والمفصل بوضوح عالي..."
         ];
+
         const maskData = (plainText) => {
             if (!plainText) return '';
             return CryptoJS.AES.encrypt(plainText, SECRET_SYSTEM_SALT).toString();
         };
+
         const unmaskData = (cipherText) => {
             if (!cipherText) return '';
             try {
@@ -118,6 +126,7 @@
                 return '';
             }
         };
+
         function SimaApplication() {
             const [darkMode, setDarkMode] = React.useState(false);
             const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_pwa_role') || null);
@@ -146,6 +155,7 @@
             const [loadingStep, setLoadingStep] = React.useState(0);
             const [result, setResult] = React.useState(null);
             const [showAdminPanel, setShowAdminPanel] = React.useState(false);
+
             React.useEffect(() => {
                 if (darkMode) {
                     document.documentElement.classList.add('dark');
@@ -153,6 +163,7 @@
                     document.documentElement.classList.remove('dark');
                 }
             }, [darkMode]);
+
             React.useEffect(() => {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
@@ -160,6 +171,7 @@
                     setShowInstallBtn(true);
                 });
             }, []);
+
             React.useEffect(() => {
                 let interval;
                 if (loading) {
@@ -171,6 +183,7 @@
                 }
                 return () => clearInterval(interval);
             }, [loading]);
+
             const handleInstallApp = async () => {
                 if (!deferredPrompt) {
                     alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
@@ -181,10 +194,12 @@
                 if (outcome === 'accepted') setShowInstallBtn(false);
                 setDeferredPrompt(null);
             };
+
             const saveUsersToDB = (updatedList) => {
                 setUsersList(updatedList);
                 localStorage.setItem('sima_masked_users', JSON.stringify(updatedList));
             };
+
             const handleAdminLogin = () => {
                 if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
@@ -198,6 +213,7 @@
                     alert('رمز مرور الإدارة العام غير صحيح!');
                 }
             };
+
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -216,6 +232,7 @@
                     alert('بيانات الدخول غير مطابقة.');
                 }
             };
+
             const handleRegister = () => {
                 if (!regNameInput.trim() || !regPasswordInput) {
                     alert('يرجى ملء الاسم وكلمة السر الكاملة.');
@@ -232,15 +249,18 @@
                 setRegNameInput('');
                 setRegPasswordInput('');
             };
+
             const toggleUserStatus = (name) => {
                 const updated = usersList.map(u => u.name === name ? { ...u, status: u.status === 'active' ? 'pending' : 'active' } : u);
                 saveUsersToDB(updated);
             };
+
             const deleteUser = (name) => {
                 if(confirm(`حذف نهائي للحساب: ${name}؟`)) {
                     saveUsersToDB(usersList.filter(u => u.name !== name));
                 }
             };
+
             const handleLogout = () => {
                 setUserRole(null);
                 setCurrentUserName('');
@@ -249,12 +269,14 @@
                 setCurrentView('landing');
                 setShowAdminPanel(false);
             };
+
             const handleSaveMaskedKey = (rawKey) => {
                 const cipher = maskData(rawKey);
                 setMaskedApiKey(cipher);
                 localStorage.setItem('sima_api_hidden_mask', cipher);
                 localStorage.setItem('sima_key_type', keyType);
             };
+
             const compressAndSetImage = (file) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -288,12 +310,14 @@
                 };
                 reader.readAsDataURL(file);
             };
+
             const handleFileChange = (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     compressAndSetImage(file);
                 }
             };
+
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
                 const realKey = unmaskData(maskedApiKey);
@@ -305,7 +329,7 @@
                 
                 const prompt = `
                     قم بتحليل ملامح الوجه في هذه الصورة تحليلاً تفصيلياً وموسعاً جداً باللغة العربية.
-                    أعد الناتج بصيغة JSON خالية تماماً من علامات الكود، فقط الكائن مباشرة:
+                    أعد الناتج بصيغة JSON تماماً بالمفاتيح التالية:
                     {
                       "score": 85,
                       "summary": "ملخص غني ومفصل وشامل جداً.",
@@ -331,16 +355,20 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }]
+                                contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
+                                generationConfig: {
+                                    responseMimeType: "application/json"
+                                }
                             })
                         });
                         if (!response.ok) throw new Error("تم حظر المسار");
                         const data = await response.json();
                         const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
                         if (!rawText) throw new Error("استجابة غير مقروءة.");
+                        
                         try {
-                            const cleanJsonStr = rawText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
-                            setResult(JSON.parse(cleanJsonStr));
+                            const parsedData = JSON.parse(rawText);
+                            setResult(parsedData);
                         } catch (jsonErr) {
                             setResult({
                                 score: 85,
@@ -361,6 +389,7 @@
                 }
                 setLoading(false);
             };
+
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
                     
@@ -401,6 +430,7 @@
                             </div>
                         </div>
                     </header>
+
                     {/* المحتوى الرئيسي */}
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
@@ -429,6 +459,7 @@
                                 </div>
                             </section>
                         )}
+
                         {!userRole && currentView === 'login_admin' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-amber-500 flex items-center gap-2"><Icons.Lock className="w-5 h-5" /> دخول الإدارة العام</h3>
@@ -443,6 +474,7 @@
                                 </div>
                             </div>
                         )}
+
                         {!userRole && currentView === 'login_member' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-purple-600 flex items-center gap-2"><Icons.User className="w-5 h-5" /> بوابة الأعضاء</h3>
@@ -464,6 +496,7 @@
                                 </div>
                             </div>
                         )}
+
                         {!userRole && currentView === 'register' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-emerald-500 flex items-center gap-2"><Icons.UserPlus className="w-5 h-5" /> طلب عضوية محمية جديدة</h3>
@@ -485,6 +518,7 @@
                                 </div>
                             </div>
                         )}
+
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
@@ -538,6 +572,7 @@
                                 </div>
                             </section>
                         )}
+
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
@@ -563,6 +598,7 @@
                                         </div>
                                     )}
                                 </section>
+
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
@@ -570,6 +606,7 @@
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}
+
                                 {result && !loading && (
                                     <div className="space-y-5">
                                         <div className="bg-white dark:bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-md text-right space-y-3">
@@ -585,6 +622,7 @@
                                                 {result?.summary}
                                             </p>
                                         </div>
+                                        
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-purple-600 dark:text-purple-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
@@ -628,6 +666,7 @@
                             </div>
                         )}
                     </main>
+
                     {/* الفوتر */}
                     <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
                         <div className="text-sm font-black text-slate-300">
@@ -637,10 +676,10 @@
                 </div>
             );
         }
+
         const container = document.getElementById('sima-app-root');
         const root = ReactDOM.createRoot(container);
         root.render(<SimaApplication />);
     </script>
 </body>
 </html>
- 

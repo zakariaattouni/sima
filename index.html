@@ -91,7 +91,6 @@
             measurementId: "G-BVXK2MD439"
         };
 
-        // عزل الفايربيس الجغرافي لضمان عدم حدوث أي تجميد في المتصفح
         if (firebase.apps.length === 0) {
             try {
                 firebase.initializeApp(firebaseConfig);
@@ -145,10 +144,16 @@
             
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
+            
+            // الحصة اليومية الافتراضية العامة المحددة من الإدارة
+            const [dailyLimit, setDailyLimit] = React.useState(() => {
+                return parseInt(localStorage.getItem('sima_daily_limit')) || 3;
+            });
+
             const [usersList, setUsersList] = React.useState(() => {
                 const localData = localStorage.getItem('sima_masked_users');
                 return localData ? JSON.parse(localData) : [
-                    { name: "تجربة عمار", password: "123", status: "active" }
+                    { name: "تجربة عمار", password: "123", status: "active", usedQuota: {}, lastResetDate: "" }
                 ];
             });
             const [keyType, setKeyType] = React.useState(() => localStorage.getItem('sima_key_type') || 'google-ai');
@@ -246,7 +251,7 @@
                     alert('هذا الاسم تم تسجيله مسبقاً.');
                     return;
                 }
-                const updated = [...usersList, { name: regNameInput.trim(), password: regPasswordInput, status: 'pending' }];
+                const updated = [...usersList, { name: regNameInput.trim(), password: regPasswordInput, status: 'pending', usedQuota: {}, lastResetDate: "" }];
                 saveUsersToDB(updated);
                 alert('تم تقديم طلب التسجيل بنجاح! وبانتظار تفعيل الإدارة.');
                 setCurrentView('landing');
@@ -279,6 +284,26 @@
                 setMaskedApiKey(cipher);
                 localStorage.setItem('sima_api_hidden_mask', cipher);
                 localStorage.setItem('sima_key_type', keyType);
+            };
+
+            const handleSaveDailyLimit = (val) => {
+                const num = parseInt(val) || 1;
+                setDailyLimit(num);
+                localStorage.setItem('sima_daily_limit', num);
+            };
+
+            // دالة للحصول على حساب العضو الحالي ومعرفة حصته المتبقية اليوم
+            const getUserRemainingQuota = (username) => {
+                if (!username || userRole === 'admin') return { remaining: 999, limit: 999 };
+                const today = new Date().toDateString();
+                const user = usersList.find(u => u.name === username);
+                if (!user) return { remaining: 0, limit: dailyLimit };
+                
+                if (user.lastResetDate !== today) {
+                    return { remaining: dailyLimit, limit: dailyLimit };
+                }
+                const used = user.usedQuota?.[today] || 0;
+                return { remaining: Math.max(0, dailyLimit - used), limit: dailyLimit };
             };
 
             const compressAndSetImage = (file) => {
@@ -322,9 +347,18 @@
                 }
             };
 
-            // معمارية الاتصال المباشر الصريح لكسر جدران الحظر بالاعتماد على الـ VPN
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
+                
+                // التحقق من الحصة المتبقية قبل إرسال الطلب
+                if (userRole !== 'admin') {
+                    const { remaining } = getUserRemainingQuota(currentUserName);
+                    if (remaining <= 0) {
+                        alert('تنبيه: لقد استهلكت كامل حصتك اليومية المحددة لك من قبل الإدارة. يرجى العودة غداً.');
+                        return;
+                    }
+                }
+
                 const realKey = unmaskData(maskedApiKey);
                 if (!realKey) {
                     alert('تنبيه: يرجى وضع مفتاح الخادم (API Key) في لوحة الإدارة أولاً.');
@@ -332,20 +366,9 @@
                 }
                 setLoading(true);
                 
-                const prompt = `
-                    قم بتحليل ملامح الوجه في هذه الصورة تحليلاً تفصيلياً وموسعاً جداً باللغة العربية.
-                    أعد الناتج بصيغة JSON تماماً بالمفاتيح التالية:
-                    {
-                      "score": 85,
-                      "summary": "ملخص غني ومفصل وشامل جداً.",
-                      "eyes": "تحليل دقيق وموسع لشكل العينين والنظرة.",
-                      "nose": "تحليل كامل لهندسة الأنف وحجمه وتناسقه.",
-                      "lips": "تحليل موسع للشفاه والابتسامة ونمط التعبير.",
-                      "jaw": "وصف دقيق للجبهة، خط الفك، الذقن، وزوايا الوجه.",
-                      "energy": "تقييم كامل لمستوى الحضور والطاقة الحيوية.",
-                      "tips": "مجموعة من التوصيات والنصائح العميقة والمخصصة لدعم الحضور والجمال والملامح البنيوية."
-                    }
-                `;
+                // تحسين وتقليص نص الـ prompt لتقليل استهلاك التوكنز والحفاظ على الفولتية الاستهلاكية للمفتاح
+                const prompt = `حلل الصورة تفصيلياً بالعربية. أعد الناتج JSON حتمياً بهذه البنية فقط:
+                {"score":85,"summary":"ملخص موسع غني للشخصية","eyes":"تحليل العينين والنظرة","nose":"هندسة الأنف وحجمه","lips":"الشفاه والابتسامة ونمط التعبير","jaw":"خط الفك والنسبة الذهبية للوجه","energy":"تقييم الحضور والطاقة الحيوية","tips":"توصيات لدعم الحضور والجمال"}`;
 
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
                 
@@ -375,6 +398,27 @@
                     try {
                         const parsedData = JSON.parse(rawText);
                         setResult(parsedData);
+                        
+                        // بعد نجاح التحليل: يتم خصم حصة واحدة وتحديث سجل المستخدم
+                        if (userRole !== 'admin') {
+                            const today = new Date().toDateString();
+                            const updatedUsers = usersList.map(u => {
+                                if (u.name === currentUserName) {
+                                    const currentUsed = u.lastResetDate === today ? (u.usedQuota?.[today] || 0) : 0;
+                                    return {
+                                        ...u,
+                                        lastResetDate: today,
+                                        usedQuota: {
+                                            ...u.usedQuota,
+                                            [today]: currentUsed + 1
+                                        }
+                                    };
+                                }
+                                return u;
+                            });
+                            saveUsersToDB(updatedUsers);
+                        }
+
                     } catch (jsonErr) {
                         setResult({
                             score: 85,
@@ -390,6 +434,8 @@
                 }
                 setLoading(false);
             };
+
+            const currentQuota = getUserRemainingQuota(currentUserName);
 
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
@@ -527,13 +573,21 @@
                                     <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><Icons.ShieldAlert className="w-4 h-4" /> المزامنة السحابية النشطة للبيانات</span>
                                 </div>
                                 
-                                <div className="grid grid-cols-1 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
                                     <div>
                                         <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">مفتاح الـ API لـ Gemini:</span>
                                         <input 
-                                            type="password" placeholder="ضع المفتاح لتشفيره وتعميته في الخلفية..." 
+                                            type="password" placeholder="ضع المفتاح لتشفيره وتعميته..." 
                                             onChange={(e) => handleSaveMaskedKey(e.target.value)}
                                             className="w-full px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-left font-mono focus:outline-none"
+                                        />
+                                    </div>
+                                    <div>
+                                        <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">الحصة اليومية لكل مشترك:</span>
+                                        <input 
+                                            type="number" min="1" max="100" value={dailyLimit}
+                                            onChange={(e) => handleSaveDailyLimit(e.target.value)}
+                                            className="w-full px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-right focus:outline-none font-bold"
                                         />
                                     </div>
                                 </div>
@@ -577,8 +631,13 @@
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
-                                    <p className="text-sm font-black text-slate-600 dark:text-slate-400">
-                                        الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>. الاتصالات تتم بصورة مباشرة.
+                                    <p className="text-sm font-black text-slate-600 dark:text-slate-400 flex flex-col sm:flex-row justify-center items-center gap-2">
+                                        <span>الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>.</span>
+                                        {userRole !== 'admin' && (
+                                            <span className="text-purple-600 dark:text-purple-400 bg-purple-500/10 px-3 py-0.5 rounded-md font-black">
+                                                الحصة المتبقية اليوم: {currentQuota.remaining} من {currentQuota.limit}
+                                            </span>
+                                        )}
                                     </p>
                                 </section>
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">

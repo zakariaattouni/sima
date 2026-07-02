@@ -396,7 +396,6 @@
                 setLoading(false);
             };
 
-            // بناء نص التقرير المنسق والكامل لعملية النسخ والمشاركة المباشرة
             const getFormattedReportText = () => {
                 if (!result) return '';
                 return `🧬 تقرير تحليل ملامح الشخصية - منصة سِيما 🧬\n\n` +
@@ -411,7 +410,6 @@
                        `🔗 تم التحليل سحابياً وبأمان تام عبر منصة سِيما الذكية.`;
             };
 
-            // دالة النسخ إلى الحافظة
             const handleCopyToClipboard = () => {
                 const reportText = getFormattedReportText();
                 navigator.clipboard.writeText(reportText).then(() => {
@@ -422,23 +420,37 @@
                 });
             };
 
-            // دالة المشاركة الأصلية الخاصة بالهواتف والتطبيقات الذكية
+            // دالة المزامنة والمشاركة المتطورة: تُرسل النص مدمجاً ومرفقاً معه ملف الصورة الحقيقي
             const handleNativeShare = async () => {
                 const reportText = getFormattedReportText();
-                if (navigator.share) {
-                    try {
+                
+                try {
+                    // تحويل الصورة المضغوطة (Data URL) المتاحة في التطبيق إلى كائن ملف (File Object)
+                    const blob = await (await fetch(image)).blob();
+                    const file = new File([blob], 'sima_analysis.jpg', { type: 'image/jpeg' });
+                    
+                    // التحقق من دعم المتصفح لمشاركة الملفات والنصوص معاً
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'تقرير منصة سِيما لتحليل الوجه',
+                            text: reportText
+                        });
+                    } else if (navigator.share) {
+                        // نظام بديل في حال دعم النص دون ملفات الصور المباشرة
                         await navigator.share({
                             title: 'تقرير منصة سِيما لتحليل الوجه',
                             text: reportText,
                             url: window.location.href
                         });
-                    } catch (err) {
-                        console.log('تم إلغاء المشاركة أو حدث خطأ غير متوقع.');
+                    } else {
+                        throw new Error('Share API non-supported');
                     }
-                } else {
-                    // نظام بديل في حال كان المتصفح لا يدعم أداة المشاركة الأصلية
+                } catch (err) {
+                    console.log(err);
+                    // خطة الطوارئ البديلة والآمنة 100% للمتصفحات المقيدة
                     handleCopyToClipboard();
-                    alert('ميزة المشاركة المباشرة غير مدعومة على هذا المتصفح. تم نسخ التقرير كاملاً ومنسقاً إلى الحافظة! يمكنك الآن الانتقال لفيسبوك ولصقه مباشرة كمنشور.');
+                    alert('المشاركة المباشرة للصورة مع النص غير مدعومة على هذا المتصفح بشكل تلقائي. لقد قمنا بنسخ التقرير النصي الكامل والمنسق إلى الحافظة! يمكنك الآن حفظ الصورة على جهازك ولصق النص معها في فيسبوك بكل سهولة.');
                 }
             };
 
@@ -692,14 +704,14 @@
                                                 {result?.summary}
                                             </p>
                                             
-                                            {/* قسم أزرار المشاركة المتقدمة والتفاعلية */}
+                                            {/* قسم أزرار المشاركة والدمج */}
                                             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
                                                 <button 
                                                     onClick={handleNativeShare}
                                                     className="w-full sm:w-auto px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all duration-200 transform active:scale-95"
                                                 >
                                                     <Icons.Share className="w-5 h-5" />
-                                                    مشاركة التحليل مباشرة (تطبيقات / فيسبوك)
+                                                    مشاركة التحليل مع الصورة لفيسبوك
                                                 </button>
                                                 
                                                 <button 

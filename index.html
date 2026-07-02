@@ -55,7 +55,6 @@
     <div id="sima-app-root"></div>
     
     <script type="text/babel">
-        // بناء الأيقونات برمجياً بصيغة SVG مدمجة
         const Icons = {
             ScanFace: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-16-4V7a3 3 0 013-3h10a3 3 0 013 3v5M9 10h.01M15 10h.01M12 14h.01" /></svg>,
             Sparkles: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
@@ -77,8 +76,10 @@
             Star: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>,
             Compass: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0M12 7l1 4l4 1l-4 1l-1 4l-1 -4l-4 -1l4 -1z" /></svg>,
             Award: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v5m-3-3h6m-3-10a3 3 0 110-6 3 3 0 010 6zm0 0a7 7 0 100 14 7 7 0 000-14z" /></svg>,
-            Facebook: ({className}) => <svg className={className} fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>
+            Copy: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>,
+            Share: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742l4.628-2.314m0 0a3 3 0 10-3.364-4.908 3 3 0 003.364 4.908zm-4.628 3.016l4.628 2.314m0 0a3 3 0 103.364-4.908 3 3 0 00-3.364 4.908z" /></svg>
         };
+
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
         
         const firebaseConfig = {
@@ -90,20 +91,18 @@
             appId: "1:978988425410:web:ec6ab58c99fce16cec9b5b",
             measurementId: "G-BVXK2MD439"
         };
+
         if (firebase.apps.length === 0) {
             try {
                 firebase.initializeApp(firebaseConfig);
                 if ("measurementId" in firebaseConfig) {
-                    try {
-                        firebase.analytics();
-                    } catch (e) {
-                        console.warn("Analytics registration bypassed safely.");
-                    }
+                    try { firebase.analytics(); } catch (e) { console.warn("Analytics safely bypassed."); }
                 }
             } catch (fbErr) {
-                console.error("Firebase core initialized into insulated mode.");
+                console.error("Firebase insulated mode activated.");
             }
         }
+
         const LOADING_STEPS = [
             "توجيه الطلب الصريح والمباشر عبر الـ VPN المستقر...",
             "تحليل الملامح الهندسية ونسب التناظر البنيوية...",
@@ -112,19 +111,20 @@
             "قياس زوايا خط الفك والنسبة الذهبية للوجه...",
             "صياغة التقرير الموسع والمفصل بوضوح عالي..."
         ];
+
         const maskData = (plainText) => {
             if (!plainText) return '';
             return CryptoJS.AES.encrypt(plainText, SECRET_SYSTEM_SALT).toString();
         };
+
         const unmaskData = (cipherText) => {
             if (!cipherText) return '';
             try {
                 const bytes = CryptoJS.AES.decrypt(cipherText, SECRET_SYSTEM_SALT);
                 return bytes.toString(CryptoJS.enc.Utf8);
-            } catch (e) {
-                return '';
-            }
+            } catch (e) { return ''; }
         };
+
         function SimaApplication() {
             const [darkMode, setDarkMode] = React.useState(false);
             const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_pwa_role') || null);
@@ -139,8 +139,8 @@
             
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
+            const [copySuccess, setCopySuccess] = React.useState(false);
             
-            // الحصة اليومية الافتراضية العامة المحددة من الإدارة
             const [dailyLimit, setDailyLimit] = React.useState(() => {
                 return parseInt(localStorage.getItem('sima_daily_limit')) || 3;
             });
@@ -150,6 +150,7 @@
                     { name: "تجربة عمار", password: "123", status: "active", usedQuota: {}, lastResetDate: "" }
                 ];
             });
+            
             const [keyType, setKeyType] = React.useState(() => localStorage.getItem('sima_key_type') || 'google-ai');
             const [maskedApiKey, setMaskedApiKey] = React.useState(() => localStorage.getItem('sima_api_hidden_mask') || '');
             const [image, setImage] = React.useState(null);
@@ -158,13 +159,12 @@
             const [loadingStep, setLoadingStep] = React.useState(0);
             const [result, setResult] = React.useState(null);
             const [showAdminPanel, setShowAdminPanel] = React.useState(false);
+
             React.useEffect(() => {
-                if (darkMode) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
+                if (darkMode) document.documentElement.classList.add('dark');
+                else document.documentElement.classList.remove('dark');
             }, [darkMode]);
+
             React.useEffect(() => {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
@@ -172,17 +172,17 @@
                     setShowInstallBtn(true);
                 });
             }, []);
+
             React.useEffect(() => {
                 let interval;
                 if (loading) {
                     interval = setInterval(() => {
                         setLoadingStep((prev) => (prev + 1) % LOADING_STEPS.length);
                     }, 2200);
-                } else {
-                    setLoadingStep(0);
-                }
+                } else { setLoadingStep(0); }
                 return () => clearInterval(interval);
             }, [loading]);
+
             const handleInstallApp = async () => {
                 if (!deferredPrompt) {
                     alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
@@ -193,10 +193,12 @@
                 if (outcome === 'accepted') setShowInstallBtn(false);
                 setDeferredPrompt(null);
             };
+
             const saveUsersToDB = (updatedList) => {
                 setUsersList(updatedList);
                 localStorage.setItem('sima_masked_users', JSON.stringify(updatedList));
             };
+
             const handleAdminLogin = () => {
                 if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
@@ -206,10 +208,9 @@
                     setCurrentView('landing');
                     setAdminPasswordInput('');
                     setShowAdminPanel(true);
-                } else {
-                    alert('رمز مرور الإدارة العام غير صحيح!');
-                }
+                } else { alert('رمز مرور الإدارة العام غير صحيح!'); }
             };
+
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -224,10 +225,9 @@
                     setCurrentView('landing');
                     setMemberNameInput('');
                     setMemberPasswordInput('');
-                } else {
-                    alert('بيانات الدخول غير مطابقة.');
-                }
+                } else { alert('بيانات الدخول غير مطابقة.'); }
             };
+
             const handleRegister = () => {
                 if (!regNameInput.trim() || !regPasswordInput) {
                     alert('يرجى ملء الاسم وكلمة السر الكاملة.');
@@ -244,15 +244,18 @@
                 setRegNameInput('');
                 setRegPasswordInput('');
             };
+
             const toggleUserStatus = (name) => {
                 const updated = usersList.map(u => u.name === name ? { ...u, status: u.status === 'active' ? 'pending' : 'active' } : u);
                 saveUsersToDB(updated);
             };
+
             const deleteUser = (name) => {
                 if(confirm(`حذف نهائي للحساب: ${name}؟`)) {
                     saveUsersToDB(usersList.filter(u => u.name !== name));
                 }
             };
+
             const handleLogout = () => {
                 setUserRole(null);
                 setCurrentUserName('');
@@ -261,18 +264,20 @@
                 setCurrentView('landing');
                 setShowAdminPanel(false);
             };
+
             const handleSaveMaskedKey = (rawKey) => {
                 const cipher = maskData(rawKey);
                 setMaskedApiKey(cipher);
                 localStorage.setItem('sima_api_hidden_mask', cipher);
                 localStorage.setItem('sima_key_type', keyType);
             };
+
             const handleSaveDailyLimit = (val) => {
                 const num = parseInt(val) || 1;
                 setDailyLimit(num);
                 localStorage.setItem('sima_daily_limit', num);
             };
-            // دالة للحصول على حساب العضو الحالي ومعرفة حصته المتبقية اليوم
+
             const getUserRemainingQuota = (username) => {
                 if (!username || userRole === 'admin') return { remaining: 999, limit: 999 };
                 const today = new Date().toDateString();
@@ -285,6 +290,7 @@
                 const used = user.usedQuota?.[today] || 0;
                 return { remaining: Math.max(0, dailyLimit - used), limit: dailyLimit };
             };
+
             const compressAndSetImage = (file) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -295,15 +301,9 @@
                         let height = img.height;
                         const max_size = 380; 
                         if (width > height) {
-                            if (width > max_size) {
-                                height *= max_size / width;
-                                width = max_size;
-                            }
+                            if (width > max_size) { height *= max_size / width; width = max_size; }
                         } else {
-                            if (height > max_size) {
-                                width *= max_size / height;
-                                height = max_size;
-                            }
+                            if (height > max_size) { width *= max_size / height; height = max_size; }
                         }
                         canvas.width = width;
                         canvas.height = height;
@@ -318,16 +318,14 @@
                 };
                 reader.readAsDataURL(file);
             };
+
             const handleFileChange = (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                    compressAndSetImage(file);
-                }
+                if (file) compressAndSetImage(file);
             };
+
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
-                
-                // التحقق من الحصة المتبقية قبل إرسال الطلب
                 if (userRole !== 'admin') {
                     const { remaining } = getUserRemainingQuota(currentUserName);
                     if (remaining <= 0) {
@@ -342,7 +340,6 @@
                 }
                 setLoading(true);
                 
-                // تحسين وتقليص نص الـ prompt لتقليل استهلاك التوكنز والحفاظ على الفولتية الاستهلاكية للمفتاح
                 const prompt = `حلل الصورة تفصيلياً بالعربية. أعد الناتج JSON حتمياً بهذه البنية فقط:
                 {"score":85,"summary":"ملخص موسع غني للشخصية","eyes":"تحليل العينين والنظرة","nose":"هندسة الأنف وحجمه","lips":"الشفاه والابتسامة ونمط التعبير","jaw":"خط الفك والنسبة الذهبية للوجه","energy":"تقييم الحضور والطاقة الحيوية","tips":"توصيات لدعم الحضور والجمال"}`;
                 const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
@@ -350,19 +347,15 @@
                 try {
                     const response = await fetch(targetUrl, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
-                            generationConfig: {
-                                responseMimeType: "application/json"
-                            }
+                            generationConfig: { responseMimeType: "application/json" }
                         })
                     });
                     if (!response.ok) {
                         const errData = await response.json();
-                        throw new Error(errData?.error?.message || "سيرفر غوغل يرفض المعالجة عبر مسار خارجي مجهول.");
+                        throw new Error(errData?.error?.message || "سيرفر غوغل يرفض المعالجة.");
                     }
                     const data = await response.json();
                     const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
@@ -372,7 +365,6 @@
                         const parsedData = JSON.parse(rawText);
                         setResult(parsedData);
                         
-                        // بعد نجاح التحليل: يتم خصم حصة واحدة وتحديث سجل المستخدم
                         if (userRole !== 'admin') {
                             const today = new Date().toDateString();
                             const updatedUsers = usersList.map(u => {
@@ -381,10 +373,7 @@
                                     return {
                                         ...u,
                                         lastResetDate: today,
-                                        usedQuota: {
-                                            ...u.usedQuota,
-                                            [today]: currentUsed + 1
-                                        }
+                                        usedQuota: { ...u.usedQuota, [today]: currentUsed + 1 }
                                     };
                                 }
                                 return u;
@@ -395,24 +384,62 @@
                         setResult({
                             score: 85,
                             summary: rawText,
-                            eyes: "تم الدمج في الملخص التنفيذي.", nose: "تم الدمج في الملخص التنفيذي.",
-                            lips: "تم الدمج في الملخص التنفيذي.", jaw: "تم الدمج في الملخص التنفيذي.",
-                            energy: "تم الدمج في الملخص التنفيذي.", tips: "تأمل النصائح البرمجية المرفقة أعلاه."
+                            eyes: "تم الدمج في الملخص.", nose: "تم الدمج في الملخص.",
+                            lips: "تم الدمج في الملخص.", jaw: "تم الدمج في الملخص.",
+                            energy: "تم الدمج في الملخص.", tips: "مرفق أعلاه."
                         });
                     }
                 } catch (err) {
                     console.error(err);
-                    alert(`فشل التوصيل المباشر: ${err.message}. يرجى محاولة تغيير دولة خادم الـ VPN (ألمانيا، فرنسا، أو السويد مثلاً) لتغيير مسار بروتوكول العبور.`);
+                    alert(`فشل التوصيل المباشر: ${err.message}. يرجى محاولة تغيير دولة خادم الـ VPN.`);
                 }
                 setLoading(false);
             };
 
-            // دالة مشاركة البيانات على فيسبوك منسقة برمجياً
-            const handleFacebookShare = () => {
-                if (!result) return;
-                const shareText = `منصة سِيما لفك شفرات ملامح الوجه 🧬\n\nالتقرير العام والملخص التنفيذي:\n${result.summary}\n\nمعدل التناظر الجمالي: ${result.score}/100\n\nاكتشف ملامح شخصيتك الآن عبر منصة سِيما المعتمدة سحابياً.`;
-                const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}&quote=${encodeURIComponent(shareText)}`;
-                window.open(facebookUrl, '_blank', 'width=600,height=400');
+            // بناء نص التقرير المنسق والكامل لعملية النسخ والمشاركة المباشرة
+            const getFormattedReportText = () => {
+                if (!result) return '';
+                return `🧬 تقرير تحليل ملامح الشخصية - منصة سِيما 🧬\n\n` +
+                       `🏆 معدل التناظر الجمالي والوجهي: ${result.score}/100\n\n` +
+                       `📝 الملخص التنفيذي للشخصية:\n${result.summary}\n\n` +
+                       `👁️ العينين والنظرة: ${result.eyes}\n\n` +
+                       `👃 الأنف والوسط البنيوي: ${result.nose}\n\n` +
+                       `👄 الشفاه ونمط التعبير: ${result.lips}\n\n` +
+                       `📐 خط الفك والنسبة الذهبية: ${result.jaw}\n\n` +
+                       `✨ الكاريزما والطاقة الحيوية: ${result.energy}\n\n` +
+                       `💡 التوصيات التطويرية:\n${result.tips}\n\n` +
+                       `🔗 تم التحليل سحابياً وبأمان تام عبر منصة سِيما الذكية.`;
+            };
+
+            // دالة النسخ إلى الحافظة
+            const handleCopyToClipboard = () => {
+                const reportText = getFormattedReportText();
+                navigator.clipboard.writeText(reportText).then(() => {
+                    setCopySuccess(true);
+                    setTimeout(() => setCopySuccess(false), 3000);
+                }).catch((err) => {
+                    alert('فشل النسخ التلقائي، يمكنك تحديد النص ونسخه يدوياً.');
+                });
+            };
+
+            // دالة المشاركة الأصلية الخاصة بالهواتف والتطبيقات الذكية
+            const handleNativeShare = async () => {
+                const reportText = getFormattedReportText();
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            title: 'تقرير منصة سِيما لتحليل الوجه',
+                            text: reportText,
+                            url: window.location.href
+                        });
+                    } catch (err) {
+                        console.log('تم إلغاء المشاركة أو حدث خطأ غير متوقع.');
+                    }
+                } else {
+                    // نظام بديل في حال كان المتصفح لا يدعم أداة المشاركة الأصلية
+                    handleCopyToClipboard();
+                    alert('ميزة المشاركة المباشرة غير مدعومة على هذا المتصفح. تم نسخ التقرير كاملاً ومنسقاً إلى الحافظة! يمكنك الآن الانتقال لفيسبوك ولصقه مباشرة كمنشور.');
+                }
             };
 
             const currentQuota = getUserRemainingQuota(currentUserName);
@@ -422,7 +449,6 @@
                     {/* الهيدر */}
                     <header className="relative z-10 border-b-2 border-slate-200 dark:border-slate-800 backdrop-blur-lg bg-white/90 dark:bg-slate-950/90 sticky top-0 px-4 py-4">
                         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 justify-between items-center">
-                            
                             <div className="flex items-center gap-3 text-center sm:text-right">
                                 <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-xl text-white border-2 border-amber-400/30 flex-shrink-0">
                                     <Icons.ScanFace className="w-8 h-8" />
@@ -456,6 +482,7 @@
                             </div>
                         </div>
                     </header>
+
                     {/* المحتوى الرئيسي */}
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
@@ -484,6 +511,8 @@
                                 </div>
                             </section>
                         )}
+
+                        {/* نماذج تسجيل الدخول والطلبات */}
                         {!userRole && currentView === 'login_admin' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-amber-500 flex items-center gap-2"><Icons.Lock className="w-5 h-5" /> دخول الإدارة العام</h3>
@@ -498,6 +527,7 @@
                                 </div>
                             </div>
                         )}
+
                         {!userRole && currentView === 'login_member' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-purple-600 flex items-center gap-2"><Icons.User className="w-5 h-5" /> بوابة الأعضاء</h3>
@@ -519,6 +549,7 @@
                                 </div>
                             </div>
                         )}
+
                         {!userRole && currentView === 'register' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-emerald-500 flex items-center gap-2"><Icons.UserPlus className="w-5 h-5" /> طلب عضوية محمية جديدة</h3>
@@ -540,6 +571,8 @@
                                 </div>
                             </div>
                         )}
+
+                        {/* لوحة التحكم للمدير العام */}
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
@@ -566,7 +599,7 @@
                                     </div>
                                 </div>
                                 <div className="space-y-3">
-                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين المشتركين سحابياً:</span>
+                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين:</span>
                                     <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
                                         <table className="w-full text-right border-collapse text-xs font-bold">
                                             <thead>
@@ -601,6 +634,8 @@
                                 </div>
                             </section>
                         )}
+
+                        {/* واجهة رفع الصور والمعالجة */}
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
@@ -613,6 +648,7 @@
                                         )}
                                     </p>
                                 </section>
+
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
                                     {!image ? (
                                         <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
@@ -631,6 +667,7 @@
                                         </div>
                                     )}
                                 </section>
+
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
@@ -638,9 +675,11 @@
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}
+
+                                {/* عرض النتائج مع أزرار المشاركة والنسخ المتكاملة */}
                                 {result && !loading && (
                                     <div className="space-y-5">
-                                        <div className="bg-white dark:bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-md text-right space-y-3">
+                                        <div className="bg-white dark:bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-md text-right space-y-4">
                                             <div className="flex justify-between items-center border-b-2 border-slate-100 dark:border-slate-800 pb-3">
                                                 <h3 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
                                                     <Icons.Award className="w-6 h-6 text-amber-500" /> التقرير البنيوي العام والملخص التنفيذي
@@ -653,18 +692,27 @@
                                                 {result?.summary}
                                             </p>
                                             
-                                            {/* زر مشاركة الحالة والتحليل المنسق على فيسبوك */}
-                                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-center">
+                                            {/* قسم أزرار المشاركة المتقدمة والتفاعلية */}
+                                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
                                                 <button 
-                                                    onClick={handleFacebookShare}
-                                                    className="w-full sm:w-auto px-6 py-3 bg-[#1877f2] hover:bg-[#166fe5] text-white font-black rounded-xl text-sm flex items-center justify-center gap-2.5 shadow-md transition-all duration-200 transform active:scale-95"
+                                                    onClick={handleNativeShare}
+                                                    className="w-full sm:w-auto px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all duration-200 transform active:scale-95"
                                                 >
-                                                    <Icons.Facebook className="w-5 h-5" />
-                                                    مشاركة التحليل والحالة على فيسبوك
+                                                    <Icons.Share className="w-5 h-5" />
+                                                    مشاركة التحليل مباشرة (تطبيقات / فيسبوك)
+                                                </button>
+                                                
+                                                <button 
+                                                    onClick={handleCopyToClipboard}
+                                                    className={`w-full sm:w-auto px-6 py-3 font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all duration-200 transform active:scale-95 border-2 ${copySuccess ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700'}`}
+                                                >
+                                                    <Icons.Copy className="w-5 h-5" />
+                                                    {copySuccess ? '✓ تم نسخ التقرير الكامل!' : 'نسخ النص المنسق لنشره يدوياً'}
                                                 </button>
                                             </div>
                                         </div>
                                         
+                                        {/* تفاصيل ملامح الوجه الستة الأساسية */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-purple-600 dark:text-purple-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
@@ -708,6 +756,7 @@
                             </div>
                         )}
                     </main>
+
                     {/* الفوتر */}
                     <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
                         <div className="text-sm font-black text-slate-300">
@@ -717,6 +766,7 @@
                 </div>
             );
         }
+
         const container = document.getElementById('sima-app-root');
         const root = ReactDOM.createRoot(container);
         root.render(<SimaApplication />);

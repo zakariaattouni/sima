@@ -47,7 +47,8 @@
             background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));        }
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
+        }
         .toast-enter { animation: slideIn 0.3s ease-out; }
         @keyframes slideIn {
             from { transform: translate(-50%, -100%); opacity: 0; }
@@ -64,11 +65,6 @@
     <div id="sima-app-root"></div>
     
     <script type="text/babel">
-        // التحقق من تحميل المكتبات
-        if (typeof React === 'undefined' || typeof ReactDOM === 'undefined') {
-            document.getElementById('sima-app-root').innerHTML = '<div style="padding:20px;text-align:center;color:red;">خطأ في تحميل المكتبات. يرجى تحديث الصفحة.</div>';
-        }
-        
         const Icons = {
             ScanFace: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-16-4V7a3 3 0 013-3h10a3 3 0 013 3v5M9 10h.01M15 10h.01M12 14h.01" /></svg>,
             Sparkles: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>,
@@ -96,7 +92,8 @@
             Award: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v5m-3-3h6m-3-10a3 3 0 110-6 3 3 0 010 6zm0 0a7 7 0 100 14 7 7 0 000-14z" /></svg>,
             Copy: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>,
             Share: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742l4.628-2.314m0 0a3 3 0 10-3.364-4.908 3 3 0 003.364 4.908zm-4.628 3.016l4.628 2.314m0 0a3 3 0 103.364-4.908 3 3 0 00-3.364 4.908z" /></svg>,
-            Bell: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>        };
+            Bell: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+        };
 
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
         
@@ -117,12 +114,9 @@
                     firebase.initializeApp(firebaseConfig);
                 }
                 database = firebase.database();
-                console.log("Firebase initialized successfully");
-            } else {
-                console.error("Firebase library not loaded");
             }
         } catch (err) {
-            console.error("Firebase initialization error:", err);
+            console.error("Firebase init error:", err);
         }
 
         const LOADING_STEPS = [
@@ -146,6 +140,7 @@
                 return bytes.toString(CryptoJS.enc.Utf8);
             } catch (e) { return ''; }
         };
+
         const saveKeyToCloud = (encryptedKey, keyType) => {
             return new Promise((resolve, reject) => {
                 if (!database) { reject(new Error("قاعدة البيانات غير متاحة")); return; }
@@ -194,14 +189,18 @@
         function SimaApplication() {
             const [darkMode, setDarkMode] = React.useState(false);
             const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_pwa_role') || null);
-            const [currentUserName, setCurrentUserName] = React.useState(() => localStorage.getItem('sima_pwa_name') || '');            const [currentView, setCurrentView] = React.useState('landing'); 
+            const [currentUserName, setCurrentUserName] = React.useState(() => localStorage.getItem('sima_pwa_name') || '');
+            const [currentView, setCurrentView] = React.useState('login');
             
             const [deferredPrompt, setDeferredPrompt] = React.useState(null);
             const [showInstallBtn, setShowInstallBtn] = React.useState(false);
+            
+            // مدخلات الدخول
             const [adminPasswordInput, setAdminPasswordInput] = React.useState('');
             const [memberNameInput, setMemberNameInput] = React.useState('');
             const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
             
+            // مدخلات التسجيل
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
             const [copySuccess, setCopySuccess] = React.useState(false);
@@ -243,7 +242,8 @@
                         setCloudStatus('error');
                     }
                 };
-                if (database) fetchCloudKey();                else setCloudStatus('error');
+                if (database) fetchCloudKey();
+                else setCloudStatus('error');
             }, []);
 
             React.useEffect(() => {
@@ -255,14 +255,10 @@
                     setUsersList(userList);
                     const pending = userList.filter(u => u.status === 'pending').length;
                     setPendingCount(pending);
-                    if (userRole === 'admin' && pending > 0 && !localStorage.getItem('notified_' + pending)) {
-                        showToast(`🔔 لديك ${pending} طلب تسجيل جديد!`, 'info');
-                        localStorage.setItem('notified_' + pending, 'true');
-                    }
                 };
                 usersRef.on('value', handleUsersChange);
                 return () => usersRef.off('value', handleUsersChange);
-            }, [userRole]);
+            }, []);
 
             React.useEffect(() => {
                 if (darkMode) document.documentElement.classList.add('dark');
@@ -292,7 +288,8 @@
             };
 
             const handleInstallApp = async () => {
-                if (!deferredPrompt) {                    alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
+                if (!deferredPrompt) {
+                    alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
                     return;
                 }
                 deferredPrompt.prompt();
@@ -301,19 +298,22 @@
                 setDeferredPrompt(null);
             };
 
+            // دخول المدير
             const handleAdminLogin = () => {
                 if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
                     setCurrentUserName('المدير العام');
                     localStorage.setItem('sima_pwa_role', 'admin');
                     localStorage.setItem('sima_pwa_name', 'المدير العام');
-                    setCurrentView('landing');
                     setAdminPasswordInput('');
                     setShowAdminPanel(true);
-                    localStorage.removeItem('notified_' + pendingCount);
-                } else { alert('رمز مرور الإدارة العام غير صحيح!'); }
+                    showToast('مرحباً أيها المدير العام', 'success');
+                } else {
+                    alert('رمز مرور الإدارة العام غير صحيح!');
+                }
             };
 
+            // دخول العضو
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -329,10 +329,12 @@
                     setCurrentUserName(foundUser.name);
                     localStorage.setItem('sima_pwa_role', 'member');
                     localStorage.setItem('sima_pwa_name', foundUser.name);
-                    setCurrentView('landing');
                     setMemberNameInput('');
                     setMemberPasswordInput('');
-                } else { alert('بيانات الدخول غير مطابقة.'); }
+                    showToast(`أهلاً ${foundUser.name}`, 'success');
+                } else {
+                    alert('بيانات الدخول غير مطابقة.');
+                }
             };
 
             const handleRegister = () => {
@@ -341,7 +343,8 @@
                     return;
                 }
                 if (usersList.some(u => u.name.trim() === regNameInput.trim())) {
-                    alert('هذا الاسم تم تسجيله مسبقاً.');                    return;
+                    alert('هذا الاسم تم تسجيله مسبقاً.');
+                    return;
                 }
                 if (!database) {
                     alert('فشل الاتصال بقاعدة البيانات. حاول مرة أخرى.');
@@ -358,9 +361,9 @@
                 database.ref('users').push(newUser)
                     .then(() => {
                         showToast('✓ تم إرسال طلبك بنجاح! انتظر تفعيل المدير', 'success');
-                        setCurrentView('landing');
                         setRegNameInput('');
                         setRegPasswordInput('');
+                        setCurrentView('login');
                     })
                     .catch(err => {
                         alert('فشل التسجيل: ' + err.message);
@@ -388,9 +391,11 @@
                 setCurrentUserName('');
                 localStorage.removeItem('sima_pwa_role');
                 localStorage.removeItem('sima_pwa_name');
-                setCurrentView('landing');
                 setShowAdminPanel(false);
+                setCurrentView('login');
+                showToast('تم تسجيل الخروج', 'success');
             };
+
             const handleSaveApiKey = async () => {
                 if (!apiKeyInput.trim()) {
                     showToast('يرجى إدخال المفتاح أولاً', 'error');
@@ -439,7 +444,8 @@
             };
 
             const compressAndSetImage = (file) => {
-                const reader = new FileReader();                reader.onload = (event) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
@@ -488,7 +494,8 @@
                 
                 const prompt = `حلل الصورة تفصيلياً بالعربية. أعد الناتج JSON حتمياً بهذه البنية فقط:
                 {"score":85,"summary":"ملخص موسع غني للشخصية","eyes":"تحليل العينين والنظرة","nose":"هندسة الأنف وحجمه","lips":"الشفاه والابتسامة ونمط التعبير","jaw":"خط الفك والنسبة الذهبية للوجه","energy":"تقييم الحضور والطاقة الحيوية","tips":"توصيات لدعم الحضور والجمال"}`;
-                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;                
+                const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${realKey}`;
+                
                 try {
                     const response = await fetch(targetUrl, {
                         method: 'POST',
@@ -509,22 +516,6 @@
                     try {
                         const parsedData = JSON.parse(rawText);
                         setResult(parsedData);
-                        
-                        if (userRole !== 'admin') {
-                            const today = new Date().toDateString();
-                            const updatedUsers = usersList.map(u => {
-                                if (u.name === currentUserName) {
-                                    const currentUsed = u.lastResetDate === today ? (u.usedQuota?.[today] || 0) : 0;
-                                    return {
-                                        ...u,
-                                        lastResetDate: today,
-                                        usedQuota: { ...u.usedQuota, [today]: currentUsed + 1 }
-                                    };
-                                }
-                                return u;
-                            });
-                            setUsersList(updatedUsers);
-                        }
                     } catch (jsonErr) {
                         setResult({
                             score: 85,
@@ -537,20 +528,21 @@
                 } catch (err) {
                     console.error(err);
                     alert(`فشل التوصيل المباشر: ${err.message}. يرجى محاولة تغيير دولة خادم الـ VPN.`);
-                }                setLoading(false);
+                }
+                setLoading(false);
             };
 
             const getFormattedReportText = () => {
                 if (!result) return '';
                 return `🧬 تقرير تحليل ملامح الشخصية - منصة سِيما \n\n` +
-                       ` معدل التناظر الجمالي والوجهي: ${result.score}/100\n\n` +
-                       `📝 الملخص التنفيذي للشخصية:\n${result.summary}\n\n` +
-                       `️ العينين والنظرة: ${result.eyes}\n\n` +
-                       ` الأنف والوسط البنيوي: ${result.nose}\n\n` +
+                       `🏆 معدل التناظر الجمالي والوجهي: ${result.score}/100\n\n` +
+                       ` الملخص التنفيذي للشخصية:\n${result.summary}\n\n` +
+                       `👁️ العينين والنظرة: ${result.eyes}\n\n` +
+                       `👃 الأنف والوسط البنيوي: ${result.nose}\n\n` +
                        `👄 الشفاه ونمط التعبير: ${result.lips}\n\n` +
                        `📐 خط الفك والنسبة الذهبية: ${result.jaw}\n\n` +
                        `✨ الكاريزما والطاقة الحيوية: ${result.energy}\n\n` +
-                       `💡 التوصيات التطويرية:\n${result.tips}\n\n` +
+                       ` التوصيات التطويرية:\n${result.tips}\n\n` +
                        `🔗 تم التحليل سحابياً وبأمان تام عبر منصة سِيما الذكية.`;
             };
 
@@ -586,7 +578,8 @@
                     
                     {toast && (
                         <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
-                    )}                    
+                    )}
+                    
                     <header className="relative z-10 border-b-2 border-slate-200 dark:border-slate-800 backdrop-blur-lg bg-white/90 dark:bg-slate-950/90 sticky top-0 px-4 py-4">
                         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 justify-between items-center">
                             <div className="flex items-center gap-3 text-center sm:text-right">
@@ -630,31 +623,113 @@
 
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
-                        {!userRole && currentView === 'landing' && (
+                        {/* صفحة الدخول - تظهر فقط عند عدم وجود مستخدم */}
+                        {!userRole && (
                             <section className="w-full max-w-md bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl text-center space-y-6">
                                 <div className="space-y-2">
                                     <div className="inline-block p-3 bg-amber-500/10 rounded-full mb-1">
                                         <Icons.Sparkles className="w-8 h-8 text-amber-500" />
-                                    </div>                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white">بوابة سِيما المشتركة والآمنة</h2>
+                                    </div>
+                                    <h2 className="text-2xl font-black text-slate-900 dark:text-white">بوابة سِيما المشتركة والآمنة</h2>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">اتصال سحابي صريح ومباشر متوافق مع كافة بروتوكولات حجب جدران الحماية الخارجية</p>
                                 </div>
+                                
+                                {/* تبويبات التبديل بين الدخول والتسجيل */}
                                 <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
-                                    <button onClick={() => setCurrentView('login')} className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${currentView === 'login' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}>دخول</button>
-                                    <button onClick={() => setCurrentView('register')} className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${currentView === 'register' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}>تسجيل جديد</button>
+                                    <button 
+                                        onClick={() => setCurrentView('login')} 
+                                        className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${currentView === 'login' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                                    >
+                                        دخول
+                                    </button>
+                                    <button 
+                                        onClick={() => setCurrentView('register')} 
+                                        className={`flex-1 py-2 rounded-lg font-black text-sm transition-all ${currentView === 'register' ? 'bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white' : 'text-slate-500'}`}
+                                    >
+                                        تسجيل جديد
+                                    </button>
                                 </div>
-                                {currentView === 'login' ? (
-                                    <div className="space-y-4">
-                                        <input type="text" placeholder="اسم المستخدم (للمدير اتركه فارغاً)" value={memberNameInput} onChange={(e) => setMemberNameInput(e.target.value)} className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none" />
-                                        <input type="password" placeholder="كلمة المرور" value={memberPasswordInput} onChange={(e) => setMemberPasswordInput(e.target.value)} className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none" />
-                                        <div className="flex gap-2">
-                                            <button onClick={() => { if (memberNameInput.trim()) handleMemberLogin(); else handleAdminLogin(); }} className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm">دخول آمن</button>
+
+                                {/* نموذج تسجيل الدخول */}
+                                {currentView === 'login' && (
+                                    <div className="space-y-5">
+                                        {/* قسم دخول المدير */}
+                                        <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border-2 border-amber-200 dark:border-amber-800/50 space-y-3">
+                                            <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-black text-sm">
+                                                <Icons.Settings className="w-5 h-5" />
+                                                <span>دخول المدير العام</span>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <input 
+                                                    type="password" 
+                                                    placeholder="كلمة سر الإدارة" 
+                                                    value={adminPasswordInput}
+                                                    onChange={(e) => setAdminPasswordInput(e.target.value)}
+                                                    className="flex-1 px-4 py-2.5 text-sm font-bold bg-white dark:bg-slate-950 border-2 border-amber-300 dark:border-amber-700 rounded-xl focus:outline-none focus:border-amber-500" 
+                                                />
+                                                <button 
+                                                    onClick={handleAdminLogin}
+                                                    className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm transition-colors shadow-md"
+                                                >
+                                                    دخول كمدير
+                                                </button>
+                                            </div>
+                                            <p className="text-xs text-amber-600 dark:text-amber-400 font-black">رمز المرور الافتراضي: salem1959</p>
+                                        </div>
+
+                                        {/* قسم دخول الأعضاء */}
+                                        <div className="border-t-2 border-slate-200 dark:border-slate-800 pt-4 space-y-3">
+                                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-black text-sm">
+                                                <Icons.User className="w-5 h-5" />
+                                                <span>دخول العضو المسجل</span>
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                placeholder="اسم المستخدم" 
+                                                value={memberNameInput} 
+                                                onChange={(e) => setMemberNameInput(e.target.value)} 
+                                                className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500" 
+                                            />
+                                            <input 
+                                                type="password" 
+                                                placeholder="كلمة المرور" 
+                                                value={memberPasswordInput} 
+                                                onChange={(e) => setMemberPasswordInput(e.target.value)} 
+                                                className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500" 
+                                            />
+                                            <button 
+                                                onClick={handleMemberLogin}
+                                                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-sm transition-colors shadow-md"
+                                            >
+                                                دخول العضو
+                                            </button>
                                         </div>
                                     </div>
-                                ) : (
+                                )}
+
+                                {/* نموذج التسجيل الجديد */}
+                                {currentView === 'register' && (
                                     <div className="space-y-4">
-                                        <input type="text" placeholder="الاسم الكامل" value={regNameInput} onChange={(e) => setRegNameInput(e.target.value)} className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none" />
-                                        <input type="password" placeholder="كلمة المرور" value={regPasswordInput} onChange={(e) => setRegPasswordInput(e.target.value)} className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none" />
-                                        <button onClick={handleRegister} className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2">
+                                        <div className="space-y-3">
+                                            <input 
+                                                type="text" 
+                                                placeholder="الاسم الكامل" 
+                                                value={regNameInput} 
+                                                onChange={(e) => setRegNameInput(e.target.value)} 
+                                                className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500" 
+                                            />
+                                            <input 
+                                                type="password" 
+                                                placeholder="كلمة المرور" 
+                                                value={regPasswordInput} 
+                                                onChange={(e) => setRegPasswordInput(e.target.value)} 
+                                                className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500" 
+                                            />
+                                        </div>
+                                        <button 
+                                            onClick={handleRegister} 
+                                            className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-sm flex items-center justify-center gap-2 transition-colors"
+                                        >
                                             <Icons.UserPlus className="w-5 h-5" /> إرسال طلب التسجيل
                                         </button>
                                         <p className="text-xs text-center text-slate-500">سيتم إشعار المدير تلقائياً لتفعيل حسابك</p>
@@ -662,7 +737,8 @@
                                 )}
                             </section>
                         )}
-
+                        
+                        {/* لوحة الإدارة */}
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
@@ -684,7 +760,8 @@
                                         <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">مفتاح الـ API لـ Gemini:</span>
                                         <div className="flex gap-2">
                                             <input 
-                                                type="password"                                                 placeholder={cloudStatus === 'synced' ? "المفتاح محفوظ. أدخل مفتاح جديد للتحديث..." : "ضع المفتاح هنا ثم اضغط حفظ..."} 
+                                                type="password" 
+                                                placeholder={cloudStatus === 'synced' ? "المفتاح محفوظ. أدخل مفتاح جديد للتحديث..." : "ضع المفتاح هنا ثم اضغط حفظ..."} 
                                                 value={apiKeyInput}
                                                 onChange={(e) => setApiKeyInput(e.target.value)}
                                                 className="flex-1 px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-left font-mono focus:outline-none"
@@ -733,7 +810,8 @@
                                                         <p className="font-black text-sm">{u.name}</p>
                                                         <p className="text-xs text-slate-500">{new Date(u.joinedAt).toLocaleDateString('ar-SA')}</p>
                                                     </div>
-                                                    <div className="flex gap-2">                                                        <button onClick={() => toggleUserStatus(u.id, 'active')} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs">تفعيل ✓</button>
+                                                    <div className="flex gap-2">
+                                                        <button onClick={() => toggleUserStatus(u.id, 'active')} className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs">تفعيل ✓</button>
                                                         <button onClick={() => toggleUserStatus(u.id, 'rejected')} className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-black text-xs">رفض ✕</button>
                                                     </div>
                                                 </div>
@@ -779,10 +857,12 @@
                             </section>
                         )}
 
+                        {/* واجهة رفع الصور والتحليل */}
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
-                                    <p className="text-sm font-black text-slate-600 dark:text-slate-400 flex flex-col sm:flex-row justify-center items-center gap-2">                                        <span>الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>.</span>
+                                    <p className="text-sm font-black text-slate-600 dark:text-slate-400 flex flex-col sm:flex-row justify-center items-center gap-2">
+                                        <span>الحساب المشترك النشط: <span className="text-amber-500 font-black bg-amber-500/10 px-2 py-0.5 rounded-md">{currentUserName}</span>.</span>
                                         {userRole !== 'admin' && (
                                             <span className="text-purple-600 dark:text-purple-400 bg-purple-500/10 px-3 py-0.5 rounded-md font-black">
                                                 الحصة المتبقية اليوم: {currentQuota.remaining} من {currentQuota.limit}
@@ -831,7 +911,8 @@
                                             </div>
                                             <p className="text-sm md:text-base text-slate-800 dark:text-slate-100 font-bold leading-relaxed">
                                                 {result?.summary}
-                                            </p>                                            
+                                            </p>
+                                            
                                             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
                                                 <button 
                                                     onClick={handleNativeShare}
@@ -880,7 +961,8 @@
                                                 <h4 className="font-black text-sm text-red-600 dark:text-red-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.Heart className="w-4 h-4" /> 5. الكاريزما، الحيوية والطاقة النفسية المنعكسة
                                                 </h4>
-                                                <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.energy}</p>                                            </div>
+                                                <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.energy}</p>
+                                            </div>
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-orange-600 dark:text-orange-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
                                                     <Icons.Star className="w-4 h-4" /> 6. التوصيات التطويرية والجمالية المخصصة
@@ -908,12 +990,10 @@
             if (container && React && ReactDOM) {
                 const root = ReactDOM.createRoot(container);
                 root.render(<SimaApplication />);
-            } else {
-                document.getElementById('sima-app-root').innerHTML = '<div style="padding:20px;text-align:center;color:red;">خطأ في تحميل React. يرجى تحديث الصفحة.</div>';
             }
         } catch (err) {
             console.error("Render error:", err);
-            document.getElementById('sima-app-root').innerHTML = '<div style="padding:20px;text-align:center;color:red;">خطأ في تشغيل التطبيق: ' + err.message + '</div>';
+            document.getElementById('sima-app-root').innerHTML = '<div style="padding:20px;text-align:center;color:red;">خطأ: ' + err.message + '</div>';
         }
     </script>
 </body>

@@ -20,7 +20,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- تم إضافة مكتبة Realtime Database لتمكين المزامنة الفورية عبر الأجهزة -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
     
     <script>
@@ -90,6 +92,9 @@
             appId: "1:978988425410:web:ec6ab58c99fce16cec9b5b",
             measurementId: "G-BVXK2MD439"
         };
+
+        // تهيئة وإعداد اتصال قاعدة البيانات السحابية فوراً
+        let database = null;
         if (firebase.apps.length === 0) {
             try {
                 firebase.initializeApp(firebaseConfig);
@@ -100,6 +105,12 @@
                 console.error("Firebase insulated mode activated.");
             }
         }
+        try {
+            database = firebase.database();
+        } catch (dbErr) {
+            console.warn("Could not load Firebase Database. Operating in offline localStorage mode.", dbErr);
+        }
+
         const LOADING_STEPS = [
             "توجيه الطلب الصريح والمباشر عبر الـ VPN المستقر...",
             "تحليل الملامح الهندسية ونسب التناظر البنيوية...",
@@ -148,7 +159,6 @@
             const [keyType, setKeyType] = React.useState(() => localStorage.getItem('sima_key_type') || 'google-ai');
             const [maskedApiKey, setMaskedApiKey] = React.useState(() => localStorage.getItem('sima_api_hidden_mask') || '');
             
-            // متغيرات لتخزين النص المدخل قبل تأكيد الحفظ وإظهار إشعار تأكيدي
             const [tempApiKey, setTempApiKey] = React.useState('');
             const [keySaveNotification, setKeySaveNotification] = React.useState(false);
 
@@ -172,7 +182,76 @@
                 });
             }, []);
 
-            // مزامنة المفتاح المشفر الحالي ليعود بشكل نصي إلى حقل الإدخال عند تشغيل التطبيق أو تعديله
+            // استقبال وتزامن البيانات سحابياً بشكل فوري
+            React.useEffect(() => {
+                if (database) {
+                    // 1. مزامنة المشتركين
+                    const usersRef = database.ref('users');
+                    usersRef.on('value', (snapshot) => {
+                        const data = snapshot.val();
+                        if (data) {
+                            let list = [];
+                            if (Array.isArray(data)) {
+                                list = data.filter(Boolean);
+                            } else if (typeof data === 'object') {
+                                list = Object.keys(data).map(key => data[key]);
+                            }
+                            if (list.length > 0) {
+                                setUsersList(list);
+                                localStorage.setItem('sima_masked_users', JSON.stringify(list));
+                            }
+                        } else {
+                            // تهيئة سحابية أولية إذا كانت قاعدة البيانات فارغة تماماً
+                            usersRef.set(usersList);
+                        }
+                    });
+
+                    // 2. مزامنة الحد اليومي
+                    const limitRef = database.ref('dailyLimit');
+                    limitRef.on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        if (val !== null) {
+                            const num = parseInt(val) || 3;
+                            setDailyLimit(num);
+                            localStorage.setItem('sima_daily_limit', num);
+                        } else {
+                            limitRef.set(dailyLimit);
+                        }
+                    });
+
+                    // 3. مزامنة مفتاح الـ API
+                    const keyRef = database.ref('maskedApiKey');
+                    keyRef.on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        if (val !== null) {
+                            setMaskedApiKey(val);
+                            localStorage.setItem('sima_api_hidden_mask', val);
+                        } else if (maskedApiKey) {
+                            keyRef.set(maskedApiKey);
+                        }
+                    });
+
+                    // 4. مزامنة نوع المفتاح
+                    const keyTypeRef = database.ref('keyType');
+                    keyTypeRef.on('value', (snapshot) => {
+                        const val = snapshot.val();
+                        if (val !== null) {
+                            setKeyType(val);
+                            localStorage.setItem('sima_key_type', val);
+                        } else if (keyType) {
+                            keyTypeRef.set(keyType);
+                        }
+                    });
+
+                    return () => {
+                        usersRef.off();
+                        limitRef.off();
+                        keyRef.off();
+                        keyTypeRef.off();
+                    };
+                }
+            }, []);
+
             React.useEffect(() => {
                 if (maskedApiKey) {
                     const decrypted = unmaskData(maskedApiKey);
@@ -189,6 +268,7 @@
                 } else { setLoadingStep(0); }
                 return () => clearInterval(interval);
             }, [loading]);
+
             const handleInstallApp = async () => {
                 if (!deferredPrompt) {
                     alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
@@ -199,10 +279,17 @@
                 if (outcome === 'accepted') setShowInstallBtn(false);
                 setDeferredPrompt(null);
             };
+
             const saveUsersToDB = (updatedList) => {
                 setUsersList(updatedList);
                 localStorage.setItem('sima_masked_users', JSON.stringify(updatedList));
+                if (database) {
+                    database.ref('users').set(updatedList).catch(err => {
+                        console.error("فشل حفظ التعديلات سحابياً:", err);
+                    });
+                }
             };
+
             const handleAdminLogin = () => {
                 if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
@@ -214,6 +301,7 @@
                     setShowAdminPanel(true);
                 } else { alert('رمز مرور الإدارة العام غير صحيح!'); }
             };
+
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -230,6 +318,7 @@
                     setMemberPasswordInput('');
                 } else { alert('بيانات الدخول غير مطابقة.'); }
             };
+
             const handleRegister = () => {
                 if (!regNameInput.trim() || !regPasswordInput) {
                     alert('يرجى ملء الاسم وكلمة السر الكاملة.');
@@ -246,15 +335,18 @@
                 setRegNameInput('');
                 setRegPasswordInput('');
             };
+
             const toggleUserStatus = (name) => {
                 const updated = usersList.map(u => u.name === name ? { ...u, status: u.status === 'active' ? 'pending' : 'active' } : u);
                 saveUsersToDB(updated);
             };
+
             const deleteUser = (name) => {
                 if(confirm(`حذف نهائي للحساب: ${name}؟`)) {
                     saveUsersToDB(usersList.filter(u => u.name !== name));
                 }
             };
+
             const handleLogout = () => {
                 setUserRole(null);
                 setCurrentUserName('');
@@ -264,7 +356,6 @@
                 setShowAdminPanel(false);
             };
 
-            // دالة التحقق المعدلة لتشمل حفظ وتعمية المفاتيح التي تبدأ بـ AIza أو AQ
             const handleSaveMaskedKey = () => {
                 const trimmedKey = tempApiKey.trim();
                 if (!trimmedKey) {
@@ -278,7 +369,11 @@
                     localStorage.setItem('sima_api_hidden_mask', cipher);
                     localStorage.setItem('sima_key_type', keyType);
                     
-                    // إظهار إشعار النجاح والتأكيد لثوانٍ معدودة
+                    if (database) {
+                        database.ref('maskedApiKey').set(cipher);
+                        database.ref('keyType').set(keyType);
+                    }
+                    
                     setKeySaveNotification(true);
                     setTimeout(() => setKeySaveNotification(false), 3500);
                 } else {
@@ -290,7 +385,11 @@
                 const num = parseInt(val) || 1;
                 setDailyLimit(num);
                 localStorage.setItem('sima_daily_limit', num);
+                if (database) {
+                    database.ref('dailyLimit').set(num);
+                }
             };
+
             const getUserRemainingQuota = (username) => {
                 if (!username || userRole === 'admin') return { remaining: 999, limit: 999 };
                 const today = new Date().toDateString();
@@ -303,6 +402,7 @@
                 const used = user.usedQuota?.[today] || 0;
                 return { remaining: Math.max(0, dailyLimit - used), limit: dailyLimit };
             };
+
             const compressAndSetImage = (file) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -330,10 +430,12 @@
                 };
                 reader.readAsDataURL(file);
             };
+
             const handleFileChange = (e) => {
                 const file = e.target.files[0];
                 if (file) compressAndSetImage(file);
             };
+
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
                 if (userRole !== 'admin') {
@@ -405,6 +507,7 @@
                 }
                 setLoading(false);
             };
+
             const getFormattedReportText = () => {
                 if (!result) return '';
                 return `🧬 تقرير تحليل ملامح الشخصية - منصة سِيما 🧬\n\n` +
@@ -418,6 +521,7 @@
                        `💡 التوصيات التطويرية:\n${result.tips}\n\n` +
                        `🔗 تم التحليل سحابياً وبأمان تام عبر منصة سِيما الذكية.`;
             };
+
             const handleCopyToClipboard = () => {
                 const reportText = getFormattedReportText();
                 navigator.clipboard.writeText(reportText).then(() => {
@@ -427,6 +531,7 @@
                     alert('فشل النسخ التلقائي، يمكنك تحديد النص ونسخه يدوياً.');
                 });
             };
+
             const handleNativeShare = async () => {
                 const reportText = getFormattedReportText();
                 try {
@@ -453,7 +558,9 @@
                     alert('المشاركة المباشرة للصورة مع النص غير مدعومة على هذا المتصفح بشكل تلقائي. لقد قمنا بنسخ التقرير النصي الكامل والمنسق إلى الحافظة! يمكنك الآن حفظ الصورة على جهازك ولصق النص معها في فيسبوك بكل سهولة.');
                 }
             };
+
             const currentQuota = getUserRemainingQuota(currentUserName);
+
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
                     
@@ -493,6 +600,7 @@
                             </div>
                         </div>
                     </header>
+
                     {/* المحتوى الرئيسي */}
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
@@ -521,6 +629,7 @@
                                 </div>
                             </section>
                         )}
+
                         {/* نماذج تسجيل الدخول والطلبات */}
                         {!userRole && currentView === 'login_admin' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
@@ -536,6 +645,7 @@
                                 </div>
                             </div>
                         )}
+
                         {!userRole && currentView === 'login_member' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-purple-600 flex items-center gap-2"><Icons.User className="w-5 h-5" /> بوابة الأعضاء</h3>
@@ -557,6 +667,7 @@
                                 </div>
                             </div>
                         )}
+
                         {!userRole && currentView === 'register' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-emerald-500 flex items-center gap-2"><Icons.UserPlus className="w-5 h-5" /> طلب عضوية محمية جديدة</h3>
@@ -578,6 +689,7 @@
                                 </div>
                             </div>
                         )}
+
                         {/* لوحة التحكم للمدير العام */}
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
@@ -655,6 +767,7 @@
                                 </div>
                             </section>
                         )}
+
                         {/* واجهة رفع الصور والمعالجة */}
                         {userRole && (
                             <div className="w-full space-y-6">
@@ -693,6 +806,7 @@
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}
+                                
                                 {/* عرض النتائج مع أزرار المشاركة والنسخ المتكاملة */}
                                 {result && !loading && (
                                     <div className="space-y-5">
@@ -773,6 +887,7 @@
                             </div>
                         )}
                     </main>
+
                     {/* الفوتر */}
                     <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
                         <div className="text-sm font-black text-slate-300">

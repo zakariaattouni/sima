@@ -12,7 +12,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght=400;700;800;900&family=Reem+Kufi:wght=600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&family=Reem+Kufi:wght@600;800;900&display=swap" rel="stylesheet">
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -21,6 +21,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics-compat.js"></script>
     
     <script>
@@ -46,8 +47,17 @@
         .gold-gradient-text {
             background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
+            -webkit-text-fill-color: transparent;            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
+        }
+        .toast-enter { animation: slideIn 0.3s ease-out; }
+        .toast-exit { animation: slideOut 0.3s ease-in forwards; }
+        @keyframes slideIn {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateY(0); opacity: 1; }
+            to { transform: translateY(-100%); opacity: 0; }
         }
     </style>
 </head>
@@ -70,6 +80,10 @@
             LogOut: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l4 4m-4-4H7m14 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
             PlusCircle: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0h-3m9 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
             ShieldAlert: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
+            CheckCircle: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            AlertCircle: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+            Save: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>,
+            Cloud: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" /></svg>,
             Eye: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>,
             Smile: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
             Heart: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>,
@@ -81,7 +95,8 @@
         };
 
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
-        
+        const FIRESTORE_COLLECTION = "app_settings";
+        const FIRESTORE_DOC_ID = "api_keys";        
         const firebaseConfig = {
             apiKey: "AIzaSyD08ozxrWCBrbCsx3ayz8Gykyy4Z7v7UEU",
             authDomain: "sima-4378c.firebaseapp.com",
@@ -92,9 +107,11 @@
             measurementId: "G-BVXK2MD439"
         };
 
+        let db = null;
         if (firebase.apps.length === 0) {
             try {
                 firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
                 if ("measurementId" in firebaseConfig) {
                     try { firebase.analytics(); } catch (e) { console.warn("Analytics safely bypassed."); }
                 }
@@ -125,10 +142,59 @@
             } catch (e) { return ''; }
         };
 
+        // دوال المزامنة السحابية مع Firestore
+        const saveKeyToCloud = async (encryptedKey, keyType) => {
+            if (!db) throw new Error("قاعدة البيانات السحابية غير متاحة");
+            try {                await db.collection(FIRESTORE_COLLECTION).doc(FIRESTORE_DOC_ID).set({
+                    maskedApiKey: encryptedKey,
+                    keyType: keyType,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    version: "2.0"
+                });
+                return true;
+            } catch (err) {
+                console.error("Cloud save error:", err);
+                throw err;
+            }
+        };
+
+        const loadKeyFromCloud = async () => {
+            if (!db) return null;
+            try {
+                const doc = await db.collection(FIRESTORE_COLLECTION).doc(FIRESTORE_DOC_ID).get();
+                if (doc.exists) {
+                    return doc.data();
+                }
+                return null;
+            } catch (err) {
+                console.error("Cloud load error:", err);
+                return null;
+            }
+        };
+
+        // مكون الإشعارات (Toast)
+        const Toast = ({ message, type, onClose }) => {
+            React.useEffect(() => {
+                const timer = setTimeout(onClose, 3500);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+
+            const bgColor = type === 'success' ? 'bg-emerald-600' : 
+                           type === 'error' ? 'bg-red-600' : 'bg-blue-600';
+            const Icon = type === 'success' ? Icons.CheckCircle : 
+                        type === 'error' ? Icons.AlertCircle : Icons.Cloud;
+
+            return (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 ${bgColor} text-white px-6 py-3 rounded-xl shadow-2xl toast-enter flex items-center gap-3 border-2 border-white/20`}>
+                    <Icon className="w-5 h-5" />
+                    <span className="font-black text-sm">{message}</span>
+                </div>
+            );
+        };
+
         function SimaApplication() {
             const [darkMode, setDarkMode] = React.useState(false);
-            const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_pwa_role') || null);
-            const [currentUserName, setCurrentUserName] = React.useState(() => localStorage.getItem('sima_pwa_name') || '');
+            const [userRole, setUserRole] = React.useState(() => localStorage.getItem('sima_pwa_role') || null);            const [currentUserName, setCurrentUserName] = React.useState(() => localStorage.getItem('sima_pwa_name') || '');
             const [currentView, setCurrentView] = React.useState('landing'); 
             
             const [deferredPrompt, setDeferredPrompt] = React.useState(null);
@@ -140,6 +206,9 @@
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
             const [copySuccess, setCopySuccess] = React.useState(false);
+            
+            // حالة الإشعارات
+            const [toast, setToast] = React.useState(null);
             
             const [dailyLimit, setDailyLimit] = React.useState(() => {
                 return parseInt(localStorage.getItem('sima_daily_limit')) || 3;
@@ -153,12 +222,36 @@
             
             const [keyType, setKeyType] = React.useState(() => localStorage.getItem('sima_key_type') || 'google-ai');
             const [maskedApiKey, setMaskedApiKey] = React.useState(() => localStorage.getItem('sima_api_hidden_mask') || '');
+            const [apiKeyInput, setApiKeyInput] = React.useState('');
+            const [isSavingKey, setIsSavingKey] = React.useState(false);
+            const [cloudSyncStatus, setCloudSyncStatus] = React.useState('idle'); // idle, loading, synced, error
+            
             const [image, setImage] = React.useState(null);
             const [compressedBase64, setCompressedBase64] = React.useState(null);
             const [loading, setLoading] = React.useState(false);
             const [loadingStep, setLoadingStep] = React.useState(0);
             const [result, setResult] = React.useState(null);
             const [showAdminPanel, setShowAdminPanel] = React.useState(false);
+
+            // جلب المفتاح من السحابة عند تحميل التطبيق
+            React.useEffect(() => {
+                const fetchCloudKey = async () => {
+                    if (!db) return;
+                    setCloudSyncStatus('loading');
+                    const cloudData = await loadKeyFromCloud();
+                    if (cloudData && cloudData.maskedApiKey) {
+                        setMaskedApiKey(cloudData.maskedApiKey);
+                        localStorage.setItem('sima_api_hidden_mask', cloudData.maskedApiKey);
+                        if (cloudData.keyType) {
+                            setKeyType(cloudData.keyType);                            localStorage.setItem('sima_key_type', cloudData.keyType);
+                        }
+                        setCloudSyncStatus('synced');
+                    } else {
+                        setCloudSyncStatus('idle');
+                    }
+                };
+                fetchCloudKey();
+            }, []);
 
             React.useEffect(() => {
                 if (darkMode) document.documentElement.classList.add('dark');
@@ -183,6 +276,10 @@
                 return () => clearInterval(interval);
             }, [loading]);
 
+            const showToast = (message, type = 'success') => {
+                setToast({ message, type });
+            };
+
             const handleInstallApp = async () => {
                 if (!deferredPrompt) {
                     alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
@@ -195,8 +292,7 @@
             };
 
             const saveUsersToDB = (updatedList) => {
-                setUsersList(updatedList);
-                localStorage.setItem('sima_masked_users', JSON.stringify(updatedList));
+                setUsersList(updatedList);                localStorage.setItem('sima_masked_users', JSON.stringify(updatedList));
             };
 
             const handleAdminLogin = () => {
@@ -245,8 +341,7 @@
                 setRegPasswordInput('');
             };
 
-            const toggleUserStatus = (name) => {
-                const updated = usersList.map(u => u.name === name ? { ...u, status: u.status === 'active' ? 'pending' : 'active' } : u);
+            const toggleUserStatus = (name) => {                const updated = usersList.map(u => u.name === name ? { ...u, status: u.status === 'active' ? 'pending' : 'active' } : u);
                 saveUsersToDB(updated);
             };
 
@@ -265,11 +360,41 @@
                 setShowAdminPanel(false);
             };
 
-            const handleSaveMaskedKey = (rawKey) => {
-                const cipher = maskData(rawKey);
-                setMaskedApiKey(cipher);
-                localStorage.setItem('sima_api_hidden_mask', cipher);
-                localStorage.setItem('sima_key_type', keyType);
+            // دالة حفظ المفتاح الجديدة مع الزر والإشعار والحفظ السحابي
+            const handleSaveApiKey = async () => {
+                if (!apiKeyInput.trim()) {
+                    showToast('يرجى إدخال المفتاح أولاً', 'error');
+                    return;
+                }
+
+                setIsSavingKey(true);
+                setCloudSyncStatus('loading');
+
+                try {
+                    const cipher = maskData(apiKeyInput.trim());
+                    
+                    // الحفظ السحابي
+                    await saveKeyToCloud(cipher, keyType);
+                    
+                    // الحفظ المحلي كاحتياط
+                    setMaskedApiKey(cipher);
+                    localStorage.setItem('sima_api_hidden_mask', cipher);
+                    localStorage.setItem('sima_key_type', keyType);
+                    
+                    setApiKeyInput('');
+                    setCloudSyncStatus('synced');
+                    showToast('✓ تم حفظ المفتاح بنجاح في السحابة المشفرة', 'success');
+                } catch (err) {
+                    console.error(err);
+                    setCloudSyncStatus('error');
+                    showToast('فشل الحفظ السحابي، تم الحفظ محلياً فقط', 'error');
+                    // حفظ احتياطي محلي
+                    const cipher = maskData(apiKeyInput.trim());
+                    setMaskedApiKey(cipher);                    localStorage.setItem('sima_api_hidden_mask', cipher);
+                    localStorage.setItem('sima_key_type', keyType);
+                } finally {
+                    setIsSavingKey(false);
+                }
             };
 
             const handleSaveDailyLimit = (val) => {
@@ -314,8 +439,7 @@
                         setCompressedBase64(compressedDataUrl.split(',')[1]);
                         setResult(null);
                     };
-                    img.src = event.target.result;
-                };
+                    img.src = event.target.result;                };
                 reader.readAsDataURL(file);
             };
 
@@ -364,8 +488,7 @@
                     try {
                         const parsedData = JSON.parse(rawText);
                         setResult(parsedData);
-                        
-                        if (userRole !== 'admin') {
+                                                if (userRole !== 'admin') {
                             const today = new Date().toDateString();
                             const updatedUsers = usersList.map(u => {
                                 if (u.name === currentUserName) {
@@ -414,22 +537,18 @@
                 const reportText = getFormattedReportText();
                 navigator.clipboard.writeText(reportText).then(() => {
                     setCopySuccess(true);
-                    setTimeout(() => setCopySuccess(false), 3000);
-                }).catch((err) => {
+                    setTimeout(() => setCopySuccess(false), 3000);                }).catch((err) => {
                     alert('فشل النسخ التلقائي، يمكنك تحديد النص ونسخه يدوياً.');
                 });
             };
 
-            // دالة المزامنة والمشاركة المتطورة: تُرسل النص مدمجاً ومرفقاً معه ملف الصورة الحقيقي
             const handleNativeShare = async () => {
                 const reportText = getFormattedReportText();
                 
                 try {
-                    // تحويل الصورة المضغوطة (Data URL) المتاحة في التطبيق إلى كائن ملف (File Object)
                     const blob = await (await fetch(image)).blob();
                     const file = new File([blob], 'sima_analysis.jpg', { type: 'image/jpeg' });
                     
-                    // التحقق من دعم المتصفح لمشاركة الملفات والنصوص معاً
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({
                             files: [file],
@@ -437,7 +556,6 @@
                             text: reportText
                         });
                     } else if (navigator.share) {
-                        // نظام بديل في حال دعم النص دون ملفات الصور المباشرة
                         await navigator.share({
                             title: 'تقرير منصة سِيما لتحليل الوجه',
                             text: reportText,
@@ -448,7 +566,6 @@
                     }
                 } catch (err) {
                     console.log(err);
-                    // خطة الطوارئ البديلة والآمنة 100% للمتصفحات المقيدة
                     handleCopyToClipboard();
                     alert('المشاركة المباشرة للصورة مع النص غير مدعومة على هذا المتصفح بشكل تلقائي. لقد قمنا بنسخ التقرير النصي الكامل والمنسق إلى الحافظة! يمكنك الآن حفظ الصورة على جهازك ولصق النص معها في فيسبوك بكل سهولة.');
                 }
@@ -458,10 +575,18 @@
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
                     
+                    {/* الإشعارات */}
+                    {toast && (
+                        <Toast 
+                            message={toast.message} 
+                            type={toast.type} 
+                            onClose={() => setToast(null)} 
+                        />
+                    )}
+                    
                     {/* الهيدر */}
                     <header className="relative z-10 border-b-2 border-slate-200 dark:border-slate-800 backdrop-blur-lg bg-white/90 dark:bg-slate-950/90 sticky top-0 px-4 py-4">
-                        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 justify-between items-center">
-                            <div className="flex items-center gap-3 text-center sm:text-right">
+                        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row gap-4 justify-between items-center">                            <div className="flex items-center gap-3 text-center sm:text-right">
                                 <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-2xl flex items-center justify-center shadow-xl text-white border-2 border-amber-400/30 flex-shrink-0">
                                     <Icons.ScanFace className="w-8 h-8" />
                                 </div>
@@ -510,8 +635,7 @@
                                 <div className="grid grid-cols-1 gap-4">
                                     <button onClick={() => setCurrentView('login_member')} className="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right font-black text-sm flex items-center justify-between hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-sm">
                                         <span className="flex items-center gap-2.5"><Icons.User className="w-5 h-5 text-purple-500" /> دخول الأعضاء والمستخدمين المعتمدين</span>
-                                        <span className="text-sm text-slate-400">←</span>
-                                    </button>
+                                        <span className="text-sm text-slate-400">←</span>                                    </button>
                                     <button onClick={() => setCurrentView('login_admin')} className="p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right font-black text-sm flex items-center justify-between hover:border-amber-500 dark:hover:border-amber-500 transition-all shadow-sm">
                                         <span className="flex items-center gap-2.5"><Icons.Lock className="w-5 h-5 text-amber-500" /> لوحة التحكم الخاصة بالمدير العام</span>
                                         <span className="text-sm text-slate-400">←</span>
@@ -524,7 +648,6 @@
                             </section>
                         )}
 
-                        {/* نماذج تسجيل الدخول والطلبات */}
                         {!userRole && currentView === 'login_admin' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-amber-500 flex items-center gap-2"><Icons.Lock className="w-5 h-5" /> دخول الإدارة العام</h3>
@@ -561,7 +684,6 @@
                                 </div>
                             </div>
                         )}
-
                         {!userRole && currentView === 'register' && (
                             <div className="w-full max-w-sm bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-slate-200 dark:border-slate-800 shadow-md space-y-4">
                                 <h3 className="font-black text-lg text-emerald-500 flex items-center gap-2"><Icons.UserPlus className="w-5 h-5" /> طلب عضوية محمية جديدة</h3>
@@ -589,18 +711,52 @@
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
                                     <h3 className="font-black text-base text-amber-600 flex items-center gap-2"><Icons.Settings className="w-5 h-5" /> غرف التحكم والتشفير التام</h3>
-                                    <span className="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-600 font-black rounded-md flex items-center gap-1"><Icons.ShieldAlert className="w-4 h-4" /> المزامنة السحابية النشطة للبيانات</span>
+                                    <span className={`text-xs px-2.5 py-1 font-black rounded-md flex items-center gap-1 ${
+                                        cloudSyncStatus === 'synced' ? 'bg-emerald-500/10 text-emerald-600' :
+                                        cloudSyncStatus === 'loading' ? 'bg-blue-500/10 text-blue-600' :
+                                        cloudSyncStatus === 'error' ? 'bg-red-500/10 text-red-600' :
+                                        'bg-slate-500/10 text-slate-600'
+                                    }`}>
+                                        <Icons.Cloud className="w-4 h-4" />
+                                        {cloudSyncStatus === 'synced' ? 'مُزامن مع السحابة ✓' :
+                                         cloudSyncStatus === 'loading' ? 'جاري المزامنة...' :
+                                         cloudSyncStatus === 'error' ? 'خطأ في المزامنة' :
+                                         'غير مُزامن'}
+                                    </span>
                                 </div>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800">
+                                <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-800 space-y-4">
                                     <div>
                                         <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">مفتاح الـ API لـ Gemini:</span>
-                                        <input 
-                                            type="password" placeholder="ضع المفتاح لتشفيره وتعميته..." 
-                                            onChange={(e) => handleSaveMaskedKey(e.target.value)}
-                                            className="w-full px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-left font-mono focus:outline-none"
-                                        />
+                                        <div className="flex gap-2">
+                                            <input 
+                                                type="password" 
+                                                placeholder="ضع المفتاح هنا ثم اضغط حفظ..." 
+                                                value={apiKeyInput}
+                                                onChange={(e) => setApiKeyInput(e.target.value)}                                                className="flex-1 px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-left font-mono focus:outline-none"
+                                            />
+                                            <button 
+                                                onClick={handleSaveApiKey}
+                                                disabled={isSavingKey}
+                                                className={`px-4 py-2.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all ${
+                                                    isSavingKey 
+                                                        ? 'bg-slate-400 text-white cursor-not-allowed' 
+                                                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
+                                                }`}
+                                            >
+                                                {isSavingKey ? (
+                                                    <><Icons.RefreshCw className="w-4 h-4 animate-spin" /> جاري الحفظ...</>
+                                                ) : (
+                                                    <><Icons.Save className="w-4 h-4" /> حفظ المفتاح</>
+                                                )}
+                                            </button>
+                                        </div>
+                                        <p className="text-xs text-slate-400 mt-1.5 font-bold flex items-center gap-1">
+                                            <Icons.Lock className="w-3 h-3" />
+                                            سيتم تشفير المفتاح وحفظه في السحابة بشكل آمن
+                                        </p>
                                     </div>
+                                    
                                     <div>
                                         <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">الحصة اليومية لكل مشترك:</span>
                                         <input 
@@ -610,6 +766,7 @@
                                         />
                                     </div>
                                 </div>
+                                
                                 <div className="space-y-3">
                                     <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين:</span>
                                     <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
@@ -625,8 +782,7 @@
                                             <tbody>
                                                 {usersList.map((user, idx) => (
                                                     <tr key={idx} className="border-b border-slate-200 dark:border-slate-800 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-900/50">
-                                                        <td className="p-3.5 font-black text-sm">{user.name}</td>
-                                                        <td className="p-3.5 font-mono text-slate-400 text-sm">{user.password}</td>
+                                                        <td className="p-3.5 font-black text-sm">{user.name}</td>                                                        <td className="p-3.5 font-mono text-slate-400 text-sm">{user.password}</td>
                                                         <td className="p-3.5">
                                                             <span className={`px-2.5 py-1 rounded-md font-black text-xs ${user.status === 'active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
                                                                 {user.status === 'active' ? '✔ مفعّل ونشط' : '⏳ معلّق ومخفي'}
@@ -675,8 +831,7 @@
                                             <div className="absolute bottom-4 right-4 left-4 flex justify-between items-center gap-2">
                                                 <button onClick={() => { setImage(null); setCompressedBase64(null); setResult(null); }} className="px-4 py-2.5 bg-red-600 text-white rounded-xl shadow-md font-black text-xs flex items-center gap-1.5"><Icons.Trash2 className="w-4 h-4" /> إلغاء الصورة</button>
                                                 {!result && !loading && <button onClick={executeGeminiAnalysis} className="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl shadow-lg font-black flex items-center gap-2 text-xs transition-colors"><Icons.Sparkles className="w-5 h-5" /> تشغيل التحليل الموسع الشامل</button>}
-                                            </div>
-                                        </div>
+                                            </div>                                        </div>
                                     )}
                                 </section>
 
@@ -688,7 +843,6 @@
                                     </section>
                                 )}
 
-                                {/* عرض النتائج مع أزرار المشاركة والنسخ المتكاملة */}
                                 {result && !loading && (
                                     <div className="space-y-5">
                                         <div className="bg-white dark:bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-md text-right space-y-4">
@@ -704,7 +858,6 @@
                                                 {result?.summary}
                                             </p>
                                             
-                                            {/* قسم أزرار المشاركة والدمج */}
                                             <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-center gap-3">
                                                 <button 
                                                     onClick={handleNativeShare}
@@ -724,12 +877,10 @@
                                             </div>
                                         </div>
                                         
-                                        {/* تفاصيل ملامح الوجه الستة الأساسية */}
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
                                                 <h4 className="font-black text-sm text-purple-600 dark:text-purple-400 flex items-center gap-1.5 border-b border-slate-100 dark:border-slate-800 pb-1.5">
-                                                    <Icons.Eye className="w-4 h-4" /> 1. هندسة العينين والعمق السلوكي
-                                                </h4>
+                                                    <Icons.Eye className="w-4 h-4" /> 1. هندسة العينين والعمق السلوكي                                                </h4>
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.eyes}</p>
                                             </div>
                                             <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-sm space-y-2">
@@ -769,7 +920,6 @@
                         )}
                     </main>
 
-                    {/* الفوتر */}
                     <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
                         <div className="text-sm font-black text-slate-300">
                             تم التصميم والتطوير بواسطة <span className="text-white font-black tracking-wide">الدكتور زكريا محمد عطوني</span> © 2026
@@ -779,8 +929,7 @@
             );
         }
 
-        const container = document.getElementById('sima-app-root');
-        const root = ReactDOM.createRoot(container);
+        const container = document.getElementById('sima-app-root');        const root = ReactDOM.createRoot(container);
         root.render(<SimaApplication />);
     </script>
 </body>

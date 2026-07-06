@@ -73,7 +73,6 @@
             Moon: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>,
             Sun: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 7a5 5 0 100 10 5 5 0 000-10z" /></svg>,
             RefreshCw: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 15.19M9 15.511L12 18.5M12 18.5l3-2.989M12 18.5V11" /></svg>,
-            Lock: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>,
             Settings: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
             User: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
             UserPlus: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>,
@@ -195,12 +194,10 @@
             const [deferredPrompt, setDeferredPrompt] = React.useState(null);
             const [showInstallBtn, setShowInstallBtn] = React.useState(false);
             
-            // مدخلات الدخول
             const [adminPasswordInput, setAdminPasswordInput] = React.useState('');
             const [memberNameInput, setMemberNameInput] = React.useState('');
             const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
             
-            // مدخلات التسجيل
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
             const [copySuccess, setCopySuccess] = React.useState(false);
@@ -298,7 +295,6 @@
                 setDeferredPrompt(null);
             };
 
-            // دخول المدير
             const handleAdminLogin = () => {
                 if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
@@ -313,7 +309,6 @@
                 }
             };
 
-            // دخول العضو
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -623,7 +618,6 @@
 
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
-                        {/* صفحة الدخول - تظهر فقط عند عدم وجود مستخدم */}
                         {!userRole && (
                             <section className="w-full max-w-md bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl text-center space-y-6">
                                 <div className="space-y-2">
@@ -634,7 +628,6 @@
                                     <p className="text-xs text-slate-500 dark:text-slate-400 font-extrabold">اتصال سحابي صريح ومباشر متوافق مع كافة بروتوكولات حجب جدران الحماية الخارجية</p>
                                 </div>
                                 
-                                {/* تبويبات التبديل بين الدخول والتسجيل */}
                                 <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1">
                                     <button 
                                         onClick={() => setCurrentView('login')} 
@@ -650,10 +643,8 @@
                                     </button>
                                 </div>
 
-                                {/* نموذج تسجيل الدخول */}
                                 {currentView === 'login' && (
                                     <div className="space-y-5">
-                                        {/* قسم دخول المدير */}
                                         <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border-2 border-amber-200 dark:border-amber-800/50 space-y-3">
                                             <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 font-black text-sm">
                                                 <Icons.Settings className="w-5 h-5" />
@@ -677,7 +668,6 @@
                                             <p className="text-xs text-amber-600 dark:text-amber-400 font-black">رمز المرور الافتراضي: salem1959</p>
                                         </div>
 
-                                        {/* قسم دخول الأعضاء */}
                                         <div className="border-t-2 border-slate-200 dark:border-slate-800 pt-4 space-y-3">
                                             <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 font-black text-sm">
                                                 <Icons.User className="w-5 h-5" />
@@ -707,7 +697,6 @@
                                     </div>
                                 )}
 
-                                {/* نموذج التسجيل الجديد */}
                                 {currentView === 'register' && (
                                     <div className="space-y-4">
                                         <div className="space-y-3">
@@ -738,7 +727,6 @@
                             </section>
                         )}
                         
-                        {/* لوحة الإدارة */}
                         {userRole === 'admin' && showAdminPanel && (
                             <section className="w-full bg-white dark:bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 mb-6 shadow-md space-y-5 text-right">
                                 <div className="border-b-2 border-slate-100 dark:border-slate-800 pb-3 flex justify-between items-center">
@@ -843,7 +831,7 @@
                                                             </span>
                                                         </td>
                                                         <td className="p-3.5 flex items-center justify-center gap-2">
-                                                            <button onClick={() => toggleUserStatus(user.id, user.status === 'active' ? 'rejected' : 'active')} className={`px-3 py-1.5 rounded-lg border-2 font-black text-xs ${user.status === 'active' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'}`}>
+                                                            <button onClick={() => toggleUserStatus(u.id, user.status === 'active' ? 'rejected' : 'active')} className={`px-3 py-1.5 rounded-lg border-2 font-black text-xs ${user.status === 'active' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'}`}>
                                                                 {user.status === 'active' ? 'حظر' : 'تفعيل'}
                                                             </button>
                                                             <button onClick={() => deleteUser(user.id)} className="px-3 py-1.5 bg-red-500/10 text-red-600 border-2 border-red-500/20 rounded-lg text-xs font-black">حذف</button>
@@ -857,7 +845,6 @@
                             </section>
                         )}
 
-                        {/* واجهة رفع الصور والتحليل */}
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">

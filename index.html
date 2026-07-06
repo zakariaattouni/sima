@@ -47,8 +47,7 @@
             background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
-        }
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));        }
         .toast-enter { animation: slideIn 0.3s ease-out; }
         @keyframes slideIn {
             from { transform: translate(-50%, -100%); opacity: 0; }
@@ -91,12 +90,13 @@
             Award: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v5m-3-3h6m-3-10a3 3 0 110-6 3 3 0 010 6zm0 0a7 7 0 100 14 7 7 0 000-14z" /></svg>,
             Copy: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>,
             Share: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 10.742l4.628-2.314m0 0a3 3 0 10-3.364-4.908 3 3 0 003.364 4.908zm-4.628 3.016l4.628 2.314m0 0a3 3 0 103.364-4.908 3 3 0 00-3.364 4.908z" /></svg>,
-            Bell: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+            Bell: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>,
+            Brush: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" /></svg>,
+            Palette: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0 6.401 6.401 0 010-9.008M7.5 6.75h.008v.008H7.5V6.75zm2.625 0h.008v.008h-.008V6.75zm2.625 0h.008v.008h-.008V6.75zm2.625 0h.008v.008h-.008V6.75zM6.75 9.375h.008v.008H6.75v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zM6.75 12h.008v.008H6.75V12zm2.625 0h.008v.008h-.008V12zm2.625 0h.008v.008h-.008V12zm2.625 0h.008v.008h-.008V12zM6.75 14.625h.008v.008H6.75v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zM10.125 17.25h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008z" /></svg>
         };
 
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
-        
-        const firebaseConfig = {
+                const firebaseConfig = {
             apiKey: "AIzaSyD08ozxrWCBrbCsx3ayz8Gykyy4Z7v7UEU",
             authDomain: "sima-4378c.firebaseapp.com",
             databaseURL: "https://sima-4378c-default-rtdb.firebaseio.com",
@@ -145,8 +145,7 @@
                 if (!database) { reject(new Error("قاعدة البيانات غير متاحة")); return; }
                 const timeout = setTimeout(() => reject(new Error("انتهت مهلة الاتصال")), 10000);
                 database.ref('app_settings/api_key').set({
-                    maskedKey: encryptedKey,
-                    keyType: keyType,
+                    maskedKey: encryptedKey,                    keyType: keyType,
                     lastUpdated: Date.now()
                 }).then(() => { clearTimeout(timeout); resolve(true); })
                   .catch((err) => { clearTimeout(timeout); reject(err); });
@@ -195,8 +194,7 @@
             const [showInstallBtn, setShowInstallBtn] = React.useState(false);
             
             const [adminPasswordInput, setAdminPasswordInput] = React.useState('');
-            const [memberNameInput, setMemberNameInput] = React.useState('');
-            const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
+            const [memberNameInput, setMemberNameInput] = React.useState('');            const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
             
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
@@ -245,8 +243,7 @@
 
             React.useEffect(() => {
                 if (!database) return;
-                const usersRef = database.ref('users');
-                const handleUsersChange = (snapshot) => {
+                const usersRef = database.ref('users');                const handleUsersChange = (snapshot) => {
                     const data = snapshot.val() || {};
                     const userList = Object.entries(data).map(([id, u]) => ({ ...u, id }));
                     setUsersList(userList);
@@ -295,8 +292,7 @@
                 setDeferredPrompt(null);
             };
 
-            const handleAdminLogin = () => {
-                if (adminPasswordInput === 'salem1959') {
+            const handleAdminLogin = () => {                if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
                     setCurrentUserName('المدير العام');
                     localStorage.setItem('sima_pwa_role', 'admin');
@@ -345,8 +341,7 @@
                     alert('فشل الاتصال بقاعدة البيانات. حاول مرة أخرى.');
                     return;
                 }
-                const newUser = { 
-                    name: regNameInput.trim(), 
+                const newUser = {                     name: regNameInput.trim(), 
                     password: regPasswordInput, 
                     status: 'pending', 
                     usedQuota: {}, 
@@ -395,8 +390,7 @@
                 if (!apiKeyInput.trim()) {
                     showToast('يرجى إدخال المفتاح أولاً', 'error');
                     return;
-                }
-                setIsSavingKey(true);
+                }                setIsSavingKey(true);
                 try {
                     const cipher = maskData(apiKeyInput.trim());
                     await saveKeyToCloud(cipher, keyType);
@@ -445,8 +439,7 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         let width = img.width;
-                        let height = img.height;
-                        const max_size = 380; 
+                        let height = img.height;                        const max_size = 380; 
                         if (width > height) {
                             if (width > max_size) { height *= max_size / width; width = max_size; }
                         } else {
@@ -495,8 +488,7 @@
                     const response = await fetch(targetUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
+                        body: JSON.stringify({                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
                             generationConfig: { responseMimeType: "application/json" }
                         })
                     });
@@ -538,6 +530,41 @@
                        `📐 خط الفك والنسبة الذهبية: ${result.jaw}\n\n` +
                        `✨ الكاريزما والطاقة الحيوية: ${result.energy}\n\n` +
                        ` التوصيات التطويرية:\n${result.tips}\n\n` +
+                       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+                       `💄 الدليل الاحترافي لأخصائيي التجميل وتزيين السيدات\n` +
+                       `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+                       `📋 خطوات العمل الاحترافية للتعامل مع عيوب الوجه:\n\n` +
+                       `الخطوة 1️⃣: التحضير المسبق\n` +
+                       `• تنظيف البشرة بعمق باستخدام غسول مناسب لنوع الجلد\n` +
+                       `• ترطيب البشرة بكريم أساسي قبل 10 دقائق من المكياج\n` +
+                       `• استخدام برايمر (Primer) لتنعيم سطح البشرة وإخفاء المسام\n\n` +                       `الخطوة 2️⃣: إخفاء العيوب البنيوية\n` +
+                       `• استخدام الكونسيلر (Concealer) بلون مصحح حسب نوع العيب:\n` +
+                       `  - الهالات السوداء: كونسيلر بلون خوخي أو برتقالي فاتح\n` +
+                       `  - البقع الحمراء: كونسيلر بلون أخضر فاتح\n` +
+                       `  - التصبغات الداكنة: كونسيلر بلون بنفسجي فاتح\n` +
+                       `• تطبيق الكونسيلر بحركات تربيت خفيفة بإصبع البنصر\n` +
+                       `• تثبيت الكونسيلر ببودرة شفافة خفيفة\n\n` +
+                       `الخطوة 3️⃣: تناسق لون البشرة\n` +
+                       `• اختيار.foundation بلون مطابق تماماً للون الرقبة\n` +
+                       `• تطبيق foundation بفرشاة مسطحة أو إسفنجة مبللة\n` +
+                       `• الدمج بحركات خارجية نحو خط الشعر والرقبة\n` +
+                       `• استخدام كونتور (Contour) بلون أغمق درجتين لتحديد ملامح الوجه\n` +
+                       `• تطبيق هايلايتر (Highlighter) على نقاط البروز: عظمة الخد، جسر الأنف، قوس كوبيد\n\n` +
+                       `الخطوة 4️⃣: التركيز على الميزات الإيجابية\n` +
+                       `• تحديد العينين: استخدام آيشادو (Eyeshadow) بألوان متناسقة مع لون البشرة\n` +
+                       `• تكثيف الرموش: استخدام ماسكارا بحركات متعرجة من الجذر حتى الأطراف\n` +
+                       `• تحديد الحواجب: استخدام قلم حواجب بلون طبيعي أو جل حواجب شفاف\n` +
+                       `• إبراز الشفاه: استخدام قلم شفاه ثم أحمر شفاه بلون مناسب\n\n` +
+                       `الخطوة 5️⃣: التثبيت النهائي\n` +
+                       `• رش مثبت المكياج (Setting Spray) على مسافة 30 سم من الوجه\n` +
+                       `• استخدام بودرة تثبيت شفافة للمناطق الدهنية\n` +
+                       `• التأكد من تناسق المكياج تحت الإضاءة الطبيعية والصناعية\n\n` +
+                       `💡 نصائح احترافية إضافية:\n` +
+                       `• دائماً ابدئي بكميات قليلة وزيني تدريجياً\n` +
+                       `• اختاري منتجات عالية الجودة ومناسبة لنوع البشرة\n` +
+                       `• نظفي الفرش والإسفنج بانتظام لمنع تراكم البكتيريا\n` +
+                       `• استمري في التعلم ومتابعة أحدث تقنيات المكياج\n` +
+                       `• احترمي تفضيلات العميلة ولا تفرضي ذوقك الشخصي\n\n` +
                        `🔗 تم التحليل سحابياً وبأمان تام عبر منصة سِيما الذكية.`;
             };
 
@@ -559,8 +586,7 @@
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({ files: [file], title: 'تقرير منصة سِيما لتحليل الوجه', text: reportText });
                     } else if (navigator.share) {
-                        await navigator.share({ title: 'تقرير منصة سِيما لتحليل الوجه', text: reportText, url: window.location.href });
-                    } else { throw new Error('Share API non-supported'); }
+                        await navigator.share({ title: 'تقرير منصة سِيما لتحليل الوجه', text: reportText, url: window.location.href });                    } else { throw new Error('Share API non-supported'); }
                 } catch (err) {
                     handleCopyToClipboard();
                     alert('المشاركة المباشرة غير مدعومة. تم نسخ التقرير النصي إلى الحافظة!');
@@ -609,8 +635,7 @@
                                         <Icons.LogOut className="w-4 h-4" /> خروج ({currentUserName})
                                     </button>
                                 )}
-                                <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-xl bg-slate-200 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800">
-                                    {darkMode ? <Icons.Sun className="w-5 h-5" /> : <Icons.Moon className="w-5 h-5" />}
+                                <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-xl bg-slate-200 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800">                                    {darkMode ? <Icons.Sun className="w-5 h-5" /> : <Icons.Moon className="w-5 h-5" />}
                                 </button>
                             </div>
                         </div>
@@ -659,8 +684,7 @@
                                                     className="flex-1 px-4 py-2.5 text-sm font-bold bg-white dark:bg-slate-950 border-2 border-amber-300 dark:border-amber-700 rounded-xl focus:outline-none focus:border-amber-500" 
                                                 />
                                                 <button 
-                                                    onClick={handleAdminLogin}
-                                                    className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm transition-colors shadow-md"
+                                                    onClick={handleAdminLogin}                                                    className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm transition-colors shadow-md"
                                                 >
                                                     دخول كمدير
                                                 </button>
@@ -709,8 +733,7 @@
                                             />
                                             <input 
                                                 type="password" 
-                                                placeholder="كلمة المرور" 
-                                                value={regPasswordInput} 
+                                                placeholder="كلمة المرور"                                                 value={regPasswordInput} 
                                                 onChange={(e) => setRegPasswordInput(e.target.value)} 
                                                 className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500" 
                                             />
@@ -759,8 +782,7 @@
                                                 disabled={isSavingKey}
                                                 className={`px-4 py-2.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all ${
                                                     isSavingKey ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
-                                                }`}
-                                            >
+                                                }`}                                            >
                                                 {isSavingKey ? (
                                                     <><Icons.RefreshCw className="w-4 h-4 animate-spin" /> جاري الحفظ...</>
                                                 ) : (
@@ -809,8 +831,7 @@
                                 </div>
                                 
                                 <div className="space-y-3">
-                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين:</span>
-                                    <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
+                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين:</span>                                    <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
                                         <table className="w-full text-right border-collapse text-xs font-bold">
                                             <thead>
                                                 <tr className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-black border-b-2 border-slate-200 dark:border-slate-800">
@@ -859,8 +880,7 @@
                                 </section>
 
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
-                                    {!image ? (
-                                        <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
+                                    {!image ? (                                        <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <div className="w-14 h-14 mx-auto mb-4 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Icons.Upload className="w-6 h-6" /></div>
                                             <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه لبدء الفحص</h3>
@@ -909,8 +929,7 @@
                                                     مشاركة التحليل مع الصورة لفيسبوك
                                                 </button>
                                                 
-                                                <button 
-                                                    onClick={handleCopyToClipboard}
+                                                <button                                                     onClick={handleCopyToClipboard}
                                                     className={`w-full sm:w-auto px-6 py-3 font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all duration-200 transform active:scale-95 border-2 ${copySuccess ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700'}`}
                                                 >
                                                     <Icons.Copy className="w-5 h-5" />
@@ -957,6 +976,87 @@
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.tips}</p>
                                             </div>
                                         </div>
+
+                                        <div className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30 border-2 border-pink-300 dark:border-pink-700 rounded-3xl p-6 shadow-lg text-right space-y-4">
+                                            <div className="flex items-center gap-2 border-b-2 border-pink-200 dark:border-pink-800 pb-3">                                                <Icons.Brush className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                                                <h3 className="text-lg font-black text-pink-700 dark:text-pink-300">
+                                                    7. الدليل الاحترافي لأخصائيي التجميل وتزيين السيدات
+                                                </h3>
+                                            </div>
+                                            
+                                            <div className="space-y-4">
+                                                <div className="bg-white/80 dark:bg-slate-900/80 rounded-xl p-4 border border-pink-200 dark:border-pink-800">
+                                                    <h4 className="font-black text-sm text-pink-700 dark:text-pink-400 flex items-center gap-2 mb-2">
+                                                        <Icons.Palette className="w-4 h-4" /> خطوات العمل الاحترافية للتعامل مع عيوب الوجه
+                                                    </h4>
+                                                    
+                                                    <div className="space-y-3 text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">
+                                                        <div>
+                                                            <p className="font-black text-pink-600 dark:text-pink-400 mb-1">الخطوة 1️⃣: التحضير المسبق</p>
+                                                            <ul className="list-disc list-inside space-y-1 mr-2 text-slate-600 dark:text-slate-300">
+                                                                <li>تنظيف البشرة بعمق باستخدام غسول مناسب لنوع الجلد</li>
+                                                                <li>ترطيب البشرة بكريم أساسي قبل 10 دقائق من المكياج</li>
+                                                                <li>استخدام برايمر (Primer) لتنعيم سطح البشرة وإخفاء المسام</li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="font-black text-pink-600 dark:text-pink-400 mb-1">الخطوة 2️⃣: إخفاء العيوب البنيوية</p>
+                                                            <ul className="list-disc list-inside space-y-1 mr-2 text-slate-600 dark:text-slate-300">
+                                                                <li>استخدام الكونسيلر (Concealer) بلون مصحح حسب نوع العيب:</li>
+                                                                <li className="mr-4">• الهالات السوداء: كونسيلر بلون خوخي أو برتقالي فاتح</li>
+                                                                <li className="mr-4">• البقع الحمراء: كونسيلر بلون أخضر فاتح</li>
+                                                                <li className="mr-4">• التصبغات الداكنة: كونسيلر بلون بنفسجي فاتح</li>
+                                                                <li>تطبيق الكونسيلر بحركات تربيت خفيفة بإصبع البنصر</li>
+                                                                <li>تثبيت الكونسيلر ببودرة شفافة خفيفة</li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="font-black text-pink-600 dark:text-pink-400 mb-1">الخطوة 3️⃣: تناسق لون البشرة</p>
+                                                            <ul className="list-disc list-inside space-y-1 mr-2 text-slate-600 dark:text-slate-300">
+                                                                <li>اختيار foundation بلون مطابق تماماً للون الرقبة</li>
+                                                                <li>تطبيق foundation بفرشاة مسطحة أو إسفنجة مبللة</li>
+                                                                <li>الدمج بحركات خارجية نحو خط الشعر والرقبة</li>
+                                                                <li>استخدام كونتور (Contour) بلون أغمق درجتين لتحديد ملامح الوجه</li>
+                                                                <li>تطبيق هايلايتر (Highlighter) على نقاط البروز: عظمة الخد، جسر الأنف، قوس كوبيد</li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="font-black text-pink-600 dark:text-pink-400 mb-1">الخطوة 4️⃣: التركيز على الميزات الإيجابية</p>
+                                                            <ul className="list-disc list-inside space-y-1 mr-2 text-slate-600 dark:text-slate-300">
+                                                                <li>تحديد العينين: استخدام آيشادو (Eyeshadow) بألوان متناسقة مع لون البشرة</li>
+                                                                <li>تكثيف الرموش: استخدام ماسكارا بحركات متعرجة من الجذر حتى الأطراف</li>                                                                <li>تحديد الحواجب: استخدام قلم حواجب بلون طبيعي أو جل حواجب شفاف</li>
+                                                                <li>إبراز الشفاه: استخدام قلم شفاه ثم أحمر شفاه بلون مناسب</li>
+                                                            </ul>
+                                                        </div>
+
+                                                        <div>
+                                                            <p className="font-black text-pink-600 dark:text-pink-400 mb-1">الخطوة 5️⃣: التثبيت النهائي</p>
+                                                            <ul className="list-disc list-inside space-y-1 mr-2 text-slate-600 dark:text-slate-300">
+                                                                <li>رش مثبت المكياج (Setting Spray) على مسافة 30 سم من الوجه</li>
+                                                                <li>استخدام بودرة تثبيت شفافة للمناطق الدهنية</li>
+                                                                <li>التأكد من تناسق المكياج تحت الإضاءة الطبيعية والصناعية</li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-white/80 dark:bg-slate-900/80 rounded-xl p-4 border border-pink-200 dark:border-pink-800">
+                                                    <h4 className="font-black text-sm text-pink-700 dark:text-pink-400 flex items-center gap-2 mb-2">
+                                                        💡 نصائح احترافية إضافية
+                                                    </h4>
+                                                    <ul className="list-disc list-inside space-y-1 text-xs md:text-sm text-slate-600 dark:text-slate-300 font-bold">
+                                                        <li>دائماً ابدئي بكميات قليلة وزيني تدريجياً</li>
+                                                        <li>اختاري منتجات عالية الجودة ومناسبة لنوع البشرة</li>
+                                                        <li>نظفي الفرش والإسفنج بانتظام لمنع تراكم البكتيريا</li>
+                                                        <li>استمري في التعلم ومتابعة أحدث تقنيات المكياج</li>
+                                                        <li>احترمي تفضيلات العميلة ولا تفرضي ذوقك الشخصي</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -976,8 +1076,7 @@
             const container = document.getElementById('sima-app-root');
             if (container && React && ReactDOM) {
                 const root = ReactDOM.createRoot(container);
-                root.render(<SimaApplication />);
-            }
+                root.render(<SimaApplication />);            }
         } catch (err) {
             console.error("Render error:", err);
             document.getElementById('sima-app-root').innerHTML = '<div style="padding:20px;text-align:center;color:red;">خطأ: ' + err.message + '</div>';

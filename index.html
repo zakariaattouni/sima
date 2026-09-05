@@ -47,7 +47,8 @@
             background: linear-gradient(135deg, #BF953F 0%, #FCF6BA 25%, #B38728 50%, #FBF5B7 75%, #AA771C 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));        }
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.2));
+        }
         .toast-enter { animation: slideIn 0.3s ease-out; }
         @keyframes slideIn {
             from { transform: translate(-50%, -100%); opacity: 0; }
@@ -95,7 +96,7 @@
             Palette: ({className}) => <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4.098 19.902a3.75 3.75 0 005.304 0 6.401 6.401 0 010-9.008M7.5 6.75h.008v.008H7.5V6.75zm2.625 0h.008v.008h-.008V6.75zm2.625 0h.008v.008h-.008V6.75zm2.625 0h.008v.008h-.008V6.75zM6.75 9.375h.008v.008H6.75v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zM6.75 12h.008v.008H6.75V12zm2.625 0h.008v.008h-.008V12zm2.625 0h.008v.008h-.008V12zm2.625 0h.008v.008h-.008V12zM6.75 14.625h.008v.008H6.75v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008zM10.125 17.25h.008v.008h-.008v-.008zm2.625 0h.008v.008h-.008v-.008z" /></svg>
         };
         const SECRET_SYSTEM_SALT = "Sima_Secure_Mask_System_2026_Dr_Attouni";
-                const firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyD08ozxrWCBrbCsx3ayz8Gykyy4Z7v7UEU",
             authDomain: "sima-4378c.firebaseapp.com",
             databaseURL: "https://sima-4378c-default-rtdb.firebaseio.com",
@@ -139,7 +140,8 @@
                 if (!database) { reject(new Error("قاعدة البيانات غير متاحة")); return; }
                 const timeout = setTimeout(() => reject(new Error("انتهت مهلة الاتصال")), 10000);
                 database.ref('app_settings/api_key').set({
-                    maskedKey: encryptedKey,                    keyType: keyType,
+                    maskedKey: encryptedKey,
+                    keyType: keyType,
                     lastUpdated: Date.now()
                 }).then(() => { clearTimeout(timeout); resolve(true); })
                   .catch((err) => { clearTimeout(timeout); reject(err); });
@@ -183,7 +185,8 @@
             const [showInstallBtn, setShowInstallBtn] = React.useState(false);
             
             const [adminPasswordInput, setAdminPasswordInput] = React.useState('');
-            const [memberNameInput, setMemberNameInput] = React.useState('');            const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
+            const [memberNameInput, setMemberNameInput] = React.useState('');
+            const [memberPasswordInput, setMemberPasswordInput] = React.useState('');
             
             const [regNameInput, setRegNameInput] = React.useState('');
             const [regPasswordInput, setRegPasswordInput] = React.useState('');
@@ -191,9 +194,6 @@
             
             const [toast, setToast] = React.useState(null);
             
-            const [dailyLimit, setDailyLimit] = React.useState(() => {
-                return parseInt(localStorage.getItem('sima_daily_limit')) || 3;
-            });
             const [usersList, setUsersList] = React.useState([]);
             const [pendingCount, setPendingCount] = React.useState(0);
             
@@ -209,6 +209,7 @@
             const [loadingStep, setLoadingStep] = React.useState(0);
             const [result, setResult] = React.useState(null);
             const [showAdminPanel, setShowAdminPanel] = React.useState(false);
+            
             React.useEffect(() => {
                 const fetchCloudKey = async () => {
                     setCloudStatus('checking');
@@ -228,9 +229,11 @@
                 if (database) fetchCloudKey();
                 else setCloudStatus('error');
             }, []);
+            
             React.useEffect(() => {
                 if (!database) return;
-                const usersRef = database.ref('users');                const handleUsersChange = (snapshot) => {
+                const usersRef = database.ref('users');
+                const handleUsersChange = (snapshot) => {
                     const data = snapshot.val() || {};
                     const userList = Object.entries(data).map(([id, u]) => ({ ...u, id }));
                     setUsersList(userList);
@@ -240,10 +243,12 @@
                 usersRef.on('value', handleUsersChange);
                 return () => usersRef.off('value', handleUsersChange);
             }, []);
+            
             React.useEffect(() => {
                 if (darkMode) document.documentElement.classList.add('dark');
                 else document.documentElement.classList.remove('dark');
             }, [darkMode]);
+            
             React.useEffect(() => {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
@@ -251,6 +256,7 @@
                     setShowInstallBtn(true);
                 });
             }, []);
+            
             React.useEffect(() => {
                 let interval;
                 if (loading) {
@@ -260,9 +266,11 @@
                 } else { setLoadingStep(0); }
                 return () => clearInterval(interval);
             }, [loading]);
+            
             const showToast = (message, type = 'success') => {
                 setToast({ message, type });
             };
+            
             const handleInstallApp = async () => {
                 if (!deferredPrompt) {
                     alert('للتثبيت على هواتف آيفون: اضغط على زر "مشاركة" ثم اختر "إضافة إلى الشاشة الرئيسية".');
@@ -273,7 +281,9 @@
                 if (outcome === 'accepted') setShowInstallBtn(false);
                 setDeferredPrompt(null);
             };
-            const handleAdminLogin = () => {                if (adminPasswordInput === 'salem1959') {
+            
+            const handleAdminLogin = () => {
+                if (adminPasswordInput === 'salem1959') {
                     setUserRole('admin');
                     setCurrentUserName('المدير العام');
                     localStorage.setItem('sima_pwa_role', 'admin');
@@ -285,6 +295,7 @@
                     alert('رمز مرور الإدارة العام غير صحيح!');
                 }
             };
+            
             const handleMemberLogin = () => {
                 const foundUser = usersList.find(u => u.name.trim() === memberNameInput.trim() && u.password === memberPasswordInput);
                 if (foundUser) {
@@ -307,6 +318,7 @@
                     alert('بيانات الدخول غير مطابقة.');
                 }
             };
+            
             const handleRegister = () => {
                 if (!regNameInput.trim() || !regPasswordInput) {
                     alert('يرجى ملء الاسم وكلمة السر الكاملة.');
@@ -320,12 +332,14 @@
                     alert('فشل الاتصال بقاعدة البيانات. حاول مرة أخرى.');
                     return;
                 }
-                const newUser = {                     name: regNameInput.trim(), 
+                const newUser = {
+                    name: regNameInput.trim(), 
                     password: regPasswordInput, 
                     status: 'pending', 
                     usedQuota: {}, 
                     lastResetDate: "",
-                    joinedAt: Date.now()
+                    joinedAt: Date.now(),
+                    subscriptionType: 'free'
                 };
                 database.ref('users').push(newUser)
                     .then(() => {
@@ -338,12 +352,21 @@
                         alert('فشل التسجيل: ' + err.message);
                     });
             };
+            
             const toggleUserStatus = (id, newStatus) => {
                 if (!database) return;
                 database.ref(`users/${id}`).update({ status: newStatus })
                     .then(() => showToast(newStatus === 'active' ? 'تم التفعيل بنجاح' : 'تم الرفض', 'success'))
                     .catch(err => showToast('فشل التحديث', 'error'));
             };
+            
+            const updateSubscriptionType = (id, type) => {
+                if (!database) return;
+                database.ref(`users/${id}`).update({ subscriptionType: type })
+                    .then(() => showToast('تم تحديث نوع الاشتراك بنجاح', 'success'))
+                    .catch(err => showToast('فشل التحديث', 'error'));
+            };
+
             const deleteUser = (id) => {
                 if(confirm('حذف نهائي لهذا الحساب؟')) {
                     if (!database) return;
@@ -352,6 +375,7 @@
                         .catch(err => showToast('فشل الحذف', 'error'));
                 }
             };
+            
             const handleLogout = () => {
                 setUserRole(null);
                 setCurrentUserName('');
@@ -361,11 +385,13 @@
                 setCurrentView('login');
                 showToast('تم تسجيل الخروج', 'success');
             };
+            
             const handleSaveApiKey = async () => {
                 if (!apiKeyInput.trim()) {
                     showToast('يرجى إدخال المفتاح أولاً', 'error');
                     return;
-                }                setIsSavingKey(true);
+                }
+                setIsSavingKey(true);
                 try {
                     const cipher = maskData(apiKeyInput.trim());
                     await saveKeyToCloud(cipher, keyType);
@@ -388,22 +414,25 @@
                     setIsSavingKey(false);
                 }
             };
-            const handleSaveDailyLimit = (val) => {
-                const num = parseInt(val) || 1;
-                setDailyLimit(num);
-                localStorage.setItem('sima_daily_limit', num);
-            };
+            
             const getUserRemainingQuota = (username) => {
                 if (!username || userRole === 'admin') return { remaining: 999, limit: 999 };
                 const today = new Date().toDateString();
                 const user = usersList.find(u => u.name === username);
-                if (!user) return { remaining: 0, limit: dailyLimit };
+                if (!user) return { remaining: 2, limit: 2 };
+                
+                // تحديد الحد اليومي بناءً على نوع الاشتراك
+                let limit = 2; // الافتراضي مجاني
+                if (user.subscriptionType === '6months') limit = 20;
+                else if (user.subscriptionType === '1year') limit = 25;
+                
                 if (user.lastResetDate !== today) {
-                    return { remaining: dailyLimit, limit: dailyLimit };
+                    return { remaining: limit, limit: limit };
                 }
                 const used = user.usedQuota?.[today] || 0;
-                return { remaining: Math.max(0, dailyLimit - used), limit: dailyLimit };
+                return { remaining: Math.max(0, limit - used), limit: limit };
             };
+            
             const compressAndSetImage = (file) => {
                 const reader = new FileReader();
                 reader.onload = (event) => {
@@ -411,7 +440,8 @@
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
                         let width = img.width;
-                        let height = img.height;                        const max_size = 380; 
+                        let height = img.height;
+                        const max_size = 380; 
                         if (width > height) {
                             if (width > max_size) { height *= max_size / width; width = max_size; }
                         } else {
@@ -430,16 +460,18 @@
                 };
                 reader.readAsDataURL(file);
             };
+            
             const handleFileChange = (e) => {
                 const file = e.target.files[0];
                 if (file) compressAndSetImage(file);
             };
+            
             const executeGeminiAnalysis = async () => {
                 if (!compressedBase64) return;
                 if (userRole !== 'admin') {
                     const { remaining } = getUserRemainingQuota(currentUserName);
                     if (remaining <= 0) {
-                        alert('تنبيه: لقد استهلكت كامل حصتك اليومية المحددة لك من قبل الإدارة. يرجى العودة غداً.');
+                        alert('تنبيه: لقد استهلكت كامل حصتك اليومية المحددة لك من قبل الإدارة. يرجى العودة غداً أو ترقية اشتراكك.');
                         return;
                     }
                 }
@@ -458,7 +490,8 @@
                     const response = await fetch(targetUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: "image/jpeg", data: compressedBase64 } }] }],
                             generationConfig: { responseMimeType: "application/json" }
                         })
                     });
@@ -482,12 +515,26 @@
                             energy: "تم الدمج في الملخص.", tips: "مرفق أعلاه."
                         });
                     }
+                    
+                    // تحديث الحصة المستخدمة
+                    if (userRole !== 'admin') {
+                        const today = new Date().toDateString();
+                        const user = usersList.find(u => u.name === currentUserName);
+                        if (user && database) {
+                            const currentUsed = user.usedQuota?.[today] || 0;
+                            database.ref(`users/${user.id}`).update({
+                                lastResetDate: today,
+                                [`usedQuota/${today}`]: currentUsed + 1
+                            });
+                        }
+                    }
                 } catch (err) {
                     console.error(err);
                     alert(`فشل التوصيل المباشر: ${err.message}. يرجى محاولة تغيير دولة خادم الـ VPN.`);
                 }
                 setLoading(false);
             };
+            
             const getFormattedReportText = () => {
                 if (!result) return '';
                 return `🧬 تقرير تحليل ملامح الشخصية - منصة سِيما \n\n` +
@@ -506,7 +553,8 @@
                        `الخطوة 1️⃣: التحضير المسبق\n` +
                        `• تنظيف البشرة بعمق باستخدام غسول مناسب لنوع الجلد\n` +
                        `• ترطيب البشرة بكريم أساسي قبل 10 دقائق من المكياج\n` +
-                       `• استخدام برايمر (Primer) لتنعيم سطح البشرة وإخفاء المسام\n\n` +                       `الخطوة 2️⃣: إخفاء العيوب البنيوية\n` +
+                       `• استخدام برايمر (Primer) لتنعيم سطح البشرة وإخفاء المسام\n\n` +
+                       `الخطوة 2️⃣: إخفاء العيوب البنيوية\n` +
                        `• استخدام الكونسيلر (Concealer) بلون مصحح حسب نوع العيب:\n` +
                        `  - الهالات السوداء: كونسيلر بلون خوخي أو برتقالي فاتح\n` +
                        `  - البقع الحمراء: كونسيلر بلون أخضر فاتح\n` +
@@ -514,7 +562,7 @@
                        `• تطبيق الكونسيلر بحركات تربيت خفيفة بإصبع البنصر\n` +
                        `• تثبيت الكونسيلر ببودرة شفافة خفيفة\n\n` +
                        `الخطوة 3️⃣: تناسق لون البشرة\n` +
-                       `• اختيار.foundation بلون مطابق تماماً للون الرقبة\n` +
+                       `• اختيار foundation بلون مطابق تماماً للون الرقبة\n` +
                        `• تطبيق foundation بفرشاة مسطحة أو إسفنجة مبللة\n` +
                        `• الدمج بحركات خارجية نحو خط الشعر والرقبة\n` +
                        `• استخدام كونتور (Contour) بلون أغمق درجتين لتحديد ملامح الوجه\n` +
@@ -536,6 +584,7 @@
                        `• احترمي تفضيلات العميلة ولا تفرضي ذوقك الشخصي\n\n` +
                        `🔗 تم التحليل سحابياً وبأمان تام عبر منصة سِيما الذكية.`;
             };
+            
             const handleCopyToClipboard = () => {
                 const reportText = getFormattedReportText();
                 navigator.clipboard.writeText(reportText).then(() => {
@@ -545,6 +594,7 @@
                     alert('فشل النسخ التلقائي، يمكنك تحديد النص ونسخه يدوياً.');
                 });
             };
+            
             const handleNativeShare = async () => {
                 const reportText = getFormattedReportText();
                 try {
@@ -553,16 +603,18 @@
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
                         await navigator.share({ files: [file], title: 'تقرير منصة سِيما لتحليل الوجه', text: reportText });
                     } else if (navigator.share) {
-                        await navigator.share({ title: 'تقرير منصة سِيما لتحليل الوجه', text: reportText, url: window.location.href });                    } else { throw new Error('Share API non-supported'); }
+                        await navigator.share({ title: 'تقرير منصة سِيما لتحليل الوجه', text: reportText, url: window.location.href });
+                    } else { throw new Error('Share API non-supported'); }
                 } catch (err) {
                     handleCopyToClipboard();
                     alert('المشاركة المباشرة غير مدعومة. تم نسخ التقرير النصي إلى الحافظة!');
                 }
             };
+            
             const currentQuota = getUserRemainingQuota(currentUserName);
+            
             return (
                 <div className="relative overflow-x-hidden min-h-screen flex flex-col justify-between">
-                    
                     {toast && (
                         <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
                     )}
@@ -601,11 +653,13 @@
                                         <Icons.LogOut className="w-4 h-4" /> خروج ({currentUserName})
                                     </button>
                                 )}
-                                <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-xl bg-slate-200 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800">                                    {darkMode ? <Icons.Sun className="w-5 h-5" /> : <Icons.Moon className="w-5 h-5" />}
+                                <button onClick={() => setDarkMode(!darkMode)} className="p-2.5 rounded-xl bg-slate-200 dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-800">
+                                    {darkMode ? <Icons.Sun className="w-5 h-5" /> : <Icons.Moon className="w-5 h-5" />}
                                 </button>
                             </div>
                         </div>
                     </header>
+                    
                     <main className="relative z-10 max-w-4xl mx-auto px-4 py-8 flex-grow w-full flex flex-col items-center justify-center">
                         
                         {!userRole && (
@@ -632,6 +686,7 @@
                                         تسجيل جديد
                                     </button>
                                 </div>
+                                
                                 {currentView === 'login' && (
                                     <div className="space-y-5">
                                         <div className="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border-2 border-amber-200 dark:border-amber-800/50 space-y-3">
@@ -648,7 +703,8 @@
                                                     className="flex-1 px-4 py-2.5 text-sm font-bold bg-white dark:bg-slate-950 border-2 border-amber-300 dark:border-amber-700 rounded-xl focus:outline-none focus:border-amber-500" 
                                                 />
                                                 <button 
-                                                    onClick={handleAdminLogin}                                                    className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm transition-colors shadow-md"
+                                                    onClick={handleAdminLogin}
+                                                    className="px-6 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-black rounded-xl text-sm transition-colors shadow-md"
                                                 >
                                                     دخول كمدير
                                                 </button>
@@ -681,7 +737,6 @@
                                                 دخول العضو
                                             </button>
                                         </div>
-                                        {/* ===== شريط واتساب الجديد ===== */}
                                         <div className="mt-2">
                                             <a 
                                                 href="https://wa.me/963939436998?text=أريد%20تفعيل%20اشتراكي%20في%20منصة%20سِيما" 
@@ -693,9 +748,9 @@
                                                 تواصل لتفعيل الاشتراك
                                             </a>
                                         </div>
-                                        {/* ===== نهاية الشريط ===== */}
                                     </div>
                                 )}
+                                
                                 {currentView === 'register' && (
                                     <div className="space-y-4">
                                         <div className="space-y-3">
@@ -708,7 +763,8 @@
                                             />
                                             <input 
                                                 type="password" 
-                                                placeholder="كلمة المرور"                                                 value={regPasswordInput} 
+                                                placeholder="كلمة المرور" 
+                                                value={regPasswordInput} 
                                                 onChange={(e) => setRegPasswordInput(e.target.value)} 
                                                 className="w-full px-4 py-3 text-sm font-bold bg-slate-50 dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:border-emerald-500" 
                                             />
@@ -757,7 +813,8 @@
                                                 disabled={isSavingKey}
                                                 className={`px-4 py-2.5 rounded-xl font-black text-xs flex items-center gap-1.5 transition-all ${
                                                     isSavingKey ? 'bg-slate-400 text-white cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-md'
-                                                }`}                                            >
+                                                }`}
+                                            >
                                                 {isSavingKey ? (
                                                     <><Icons.RefreshCw className="w-4 h-4 animate-spin" /> جاري الحفظ...</>
                                                 ) : (
@@ -770,16 +827,8 @@
                                             يتم تشفير المفتاح وحفظه سحابياً لجميع المستخدمين
                                         </p>
                                     </div>
-                                    
-                                    <div>
-                                        <span className="block text-xs font-black text-slate-500 dark:text-slate-400 mb-1.5">الحصة اليومية لكل مشترك:</span>
-                                        <input 
-                                            type="number" min="1" max="100" value={dailyLimit}
-                                            onChange={(e) => handleSaveDailyLimit(e.target.value)}
-                                            className="w-full px-4 py-2.5 text-xs bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-xl text-right focus:outline-none font-bold"
-                                        />
-                                    </div>
                                 </div>
+                                
                                 <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border-2 border-purple-500 space-y-3">
                                     <h4 className="font-black text-purple-600 flex items-center gap-2">
                                         <Icons.UserPlus className="w-5 h-5" /> طلبات التسجيل المعلقة ({pendingCount})
@@ -805,14 +854,16 @@
                                 </div>
                                 
                                 <div className="space-y-3">
-                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين:</span>                                    <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
+                                    <span className="block text-sm font-black text-slate-500 dark:text-slate-400">إدارة صلاحيات وتراخيص المستخدمين:</span>
+                                    <div className="overflow-x-auto border-2 border-slate-200 dark:border-slate-800 rounded-2xl">
                                         <table className="w-full text-right border-collapse text-xs font-bold">
                                             <thead>
                                                 <tr className="bg-slate-100 dark:bg-slate-950 text-slate-500 font-black border-b-2 border-slate-200 dark:border-slate-800">
                                                     <th className="p-3.5">اسم المستخدم</th>
                                                     <th className="p-3.5">رمز المرور</th>
-                                                    <th className="p-3.5">حالة التفعيل الحالية</th>
-                                                    <th className="p-3.5 text-center">تغيير الصلاحية</th>
+                                                    <th className="p-3.5">حالة التفعيل</th>
+                                                    <th className="p-3.5">نوع الاشتراك</th>
+                                                    <th className="p-3.5 text-center">إجراءات</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -822,11 +873,22 @@
                                                         <td className="p-3.5 font-mono text-slate-400 text-sm">{user.password}</td>
                                                         <td className="p-3.5">
                                                             <span className={`px-2.5 py-1 rounded-md font-black text-xs ${user.status === 'active' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-red-500/10 text-red-600'}`}>
-                                                                {user.status === 'active' ? '✔ مفعّل ونشط' : '✕ مرفوض'}
+                                                                {user.status === 'active' ? '✔ مفعّل' : '✕ مرفوض'}
                                                             </span>
                                                         </td>
+                                                        <td className="p-3.5">
+                                                            <select 
+                                                                value={user.subscriptionType || 'free'} 
+                                                                onChange={(e) => updateSubscriptionType(user.id, e.target.value)}
+                                                                className="w-full px-2 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-bold focus:outline-none focus:border-amber-500"
+                                                            >
+                                                                <option value="free">مجاني (2 يومياً)</option>
+                                                                <option value="6months">6 أشهر (20 يومياً)</option>
+                                                                <option value="1year">سنة كاملة (25 يومياً)</option>
+                                                            </select>
+                                                        </td>
                                                         <td className="p-3.5 flex items-center justify-center gap-2">
-                                                            <button onClick={() => toggleUserStatus(u.id, user.status === 'active' ? 'rejected' : 'active')} className={`px-3 py-1.5 rounded-lg border-2 font-black text-xs ${user.status === 'active' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'}`}>
+                                                            <button onClick={() => toggleUserStatus(user.id, user.status === 'active' ? 'rejected' : 'active')} className={`px-3 py-1.5 rounded-lg border-2 font-black text-xs ${user.status === 'active' ? 'bg-amber-500/10 text-amber-600 border-amber-500/30' : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/30'}`}>
                                                                 {user.status === 'active' ? 'حظر' : 'تفعيل'}
                                                             </button>
                                                             <button onClick={() => deleteUser(user.id)} className="px-3 py-1.5 bg-red-500/10 text-red-600 border-2 border-red-500/20 rounded-lg text-xs font-black">حذف</button>
@@ -839,6 +901,7 @@
                                 </div>
                             </section>
                         )}
+                        
                         {userRole && (
                             <div className="w-full space-y-6">
                                 <section className="text-center mb-2">
@@ -851,8 +914,59 @@
                                         )}
                                     </p>
                                 </section>
+
+                                {userRole === 'member' && (
+                                    <section className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-900 dark:to-slate-800 border-2 border-amber-200 dark:border-amber-700 rounded-3xl p-6 shadow-md mb-6 w-full">
+                                        <h3 className="text-xl font-black text-amber-700 dark:text-amber-400 mb-4 flex items-center gap-2 justify-center">
+                                            <Icons.Award className="w-6 h-6" /> باقات الترقية والاشتراكات المميزة
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                            <div className="bg-white dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-center">
+                                                <h4 className="font-black text-lg text-slate-700 dark:text-slate-300">مجاني</h4>
+                                                <p className="text-3xl font-black text-slate-900 dark:text-white my-2">0 $</p>
+                                                <p className="text-sm font-bold text-slate-500">تحليلين (2) يومياً</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-950 p-4 rounded-2xl border-2 border-amber-500 text-center relative transform md:-translate-y-2 shadow-lg">
+                                                <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-amber-500 text-white text-xs font-black px-3 py-1 rounded-full">الأكثر طلباً</div>
+                                                <h4 className="font-black text-lg text-amber-600">6 أشهر</h4>
+                                                <p className="text-3xl font-black text-slate-900 dark:text-white my-2">15 $</p>
+                                                <p className="text-sm font-bold text-slate-500">20 تحليل يومياً</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-950 p-4 rounded-2xl border-2 border-purple-500 text-center">
+                                                <h4 className="font-black text-lg text-purple-600">سنة كاملة</h4>
+                                                <p className="text-3xl font-black text-slate-900 dark:text-white my-2">25 $</p>
+                                                <p className="text-sm font-bold text-slate-500">25 تحليل يومياً</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-white dark:bg-slate-950 p-4 rounded-2xl border-2 border-slate-200 dark:border-slate-700 space-y-3">
+                                            <h4 className="font-black text-sm text-slate-700 dark:text-slate-300 flex items-center gap-2 justify-center">
+                                                <Icons.ShieldAlert className="w-5 h-5 text-emerald-600" /> طرق الدفع المعتمدة:
+                                            </h4>
+                                            <p className="text-sm font-bold text-slate-600 dark:text-slate-400 leading-relaxed text-center">
+                                                ويسترن يونيون (Western Union) | الهرم | الفؤاد | شام كاش (Sham Cash)
+                                            </p>
+                                            <div className="border-t border-slate-200 dark:border-slate-700 pt-3 space-y-1 text-center">
+                                                <p className="text-sm font-black text-slate-800 dark:text-slate-200">باسم: د. زكريا محمد عطوني</p>
+                                                <p className="text-sm font-bold text-slate-600 dark:text-slate-400">اللاذقية - سوريا</p>
+                                                <p className="text-sm font-bold text-slate-600 dark:text-slate-400" dir="ltr">+963 939 436 998</p>
+                                            </div>
+                                            <a 
+                                                href="https://wa.me/963939436998?text=مرحباً دكتور زكريا، أرغب بترقية اشتراكي في منصة سِيما. مرفق إيصال التحويل." 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-black py-3 px-4 rounded-xl transition-colors shadow-md text-sm mt-2"
+                                            >
+                                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                                                إرسال إيصال التحويل وتفعيل الاشتراك عبر واتساب
+                                            </a>
+                                            <p className="text-xs text-center text-slate-500 font-bold">ملاحظة: يتم تفعيل الترقية يدوياً من قبل الإدارة بعد التحقق من الحوالة.</p>
+                                        </div>
+                                    </section>
+                                )}
+
                                 <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md">
-                                    {!image ? (                                        <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
+                                    {!image ? (
+                                        <div className="border-4 border-dashed rounded-2xl p-10 text-center cursor-pointer border-slate-300 dark:border-slate-700 hover:border-amber-500 dark:hover:border-amber-500 bg-slate-50/50 dark:bg-slate-950/20 relative">
                                             <input type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                             <div className="w-14 h-14 mx-auto mb-4 bg-amber-500/10 text-amber-600 rounded-full flex items-center justify-center"><Icons.Upload className="w-6 h-6" /></div>
                                             <h3 className="text-base font-black mb-1">اضغط هنا أو ارفع صورة الوجه لبدء الفحص</h3>
@@ -868,6 +982,7 @@
                                         </div>
                                     )}
                                 </section>
+                                
                                 {loading && (
                                     <section className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-md text-center">
                                         <Icons.RefreshCw className="w-10 h-10 text-amber-500 animate-spin mx-auto mb-3" />
@@ -875,6 +990,7 @@
                                         <p className="text-amber-600 dark:text-amber-400 font-black text-sm">{LOADING_STEPS[loadingStep]}</p>
                                     </section>
                                 )}
+                                
                                 {result && !loading && (
                                     <div className="space-y-5">
                                         <div className="bg-white dark:bg-slate-900 border-2 border-amber-500/40 rounded-3xl p-6 shadow-md text-right space-y-4">
@@ -899,7 +1015,8 @@
                                                     مشاركة التحليل مع الصورة لفيسبوك
                                                 </button>
                                                 
-                                                <button                                                     onClick={handleCopyToClipboard}
+                                                <button 
+                                                    onClick={handleCopyToClipboard}
                                                     className={`w-full sm:w-auto px-6 py-3 font-black rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition-all duration-200 transform active:scale-95 border-2 ${copySuccess ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700'}`}
                                                 >
                                                     <Icons.Copy className="w-5 h-5" />
@@ -946,8 +1063,10 @@
                                                 <p className="text-xs md:text-sm text-slate-700 dark:text-slate-200 font-bold leading-relaxed">{result?.tips}</p>
                                             </div>
                                         </div>
+                                        
                                         <div className="bg-gradient-to-br from-pink-50 to-purple-50 dark:from-pink-950/30 dark:to-purple-950/30 border-2 border-pink-300 dark:border-pink-700 rounded-3xl p-6 shadow-lg text-right space-y-4">
-                                            <div className="flex items-center gap-2 border-b-2 border-pink-200 dark:border-pink-800 pb-3">                                                <Icons.Brush className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                                            <div className="flex items-center gap-2 border-b-2 border-pink-200 dark:border-pink-800 pb-3">
+                                                <Icons.Brush className="w-6 h-6 text-pink-600 dark:text-pink-400" />
                                                 <h3 className="text-lg font-black text-pink-700 dark:text-pink-300">
                                                     7. الدليل الاحترافي لأخصائيي التجميل وتزيين السيدات
                                                 </h3>
@@ -993,7 +1112,8 @@
                                                             <p className="font-black text-pink-600 dark:text-pink-400 mb-1">الخطوة 4️⃣: التركيز على الميزات الإيجابية</p>
                                                             <ul className="list-disc list-inside space-y-1 mr-2 text-slate-600 dark:text-slate-300">
                                                                 <li>تحديد العينين: استخدام آيشادو (Eyeshadow) بألوان متناسقة مع لون البشرة</li>
-                                                                <li>تكثيف الرموش: استخدام ماسكارا بحركات متعرجة من الجذر حتى الأطراف</li>                                                                <li>تحديد الحواجب: استخدام قلم حواجب بلون طبيعي أو جل حواجب شفاف</li>
+                                                                <li>تكثيف الرموش: استخدام ماسكارا بحركات متعرجة من الجذر حتى الأطراف</li>
+                                                                <li>تحديد الحواجب: استخدام قلم حواجب بلون طبيعي أو جل حواجب شفاف</li>
                                                                 <li>إبراز الشفاه: استخدام قلم شفاه ثم أحمر شفاه بلون مناسب</li>
                                                             </ul>
                                                         </div>
@@ -1026,19 +1146,22 @@
                             </div>
                         )}
                     </main>
+                    
                     <footer className="w-full bg-slate-950 text-slate-400 border-t border-slate-900 text-center py-6 px-4 space-y-2 mt-12">
                         <div className="text-sm font-black text-slate-300">
-                            تم التصميم والتطوير بواسطة <span className="text-white font-black tracking-wide">الدكتور زكريا محمد عطوني</span> © 2026
+                            تم التصميم والتطوير بواسطة <span className="text-white font-black tracking-wide">د. زكريا محمد عطوني</span> © 2026
                         </div>
                     </footer>
                 </div>
             );
         }
+        
         try {
             const container = document.getElementById('sima-app-root');
             if (container && React && ReactDOM) {
                 const root = ReactDOM.createRoot(container);
-                root.render(<SimaApplication />);            }
+                root.render(<SimaApplication />);
+            }
         } catch (err) {
             console.error("Render error:", err);
             document.getElementById('sima-app-root').innerHTML = '<div style="padding:20px;text-align:center;color:red;">خطأ: ' + err.message + '</div>';
